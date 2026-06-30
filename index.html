@@ -7,10 +7,8 @@
 <meta name="description" content="A cryptic crossword puzzle with an astronomy theme. Decode clever clues about planets, comets, constellations and astronomers, and climb the leaderboard. ✦">
 <meta name="theme-color" content="#1e1b4b">
 
-<!-- Inline SVG favicon — no external file needed -->
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3CradialGradient id='g' cx='50%25' cy='40%25'%3E%3Cstop offset='0%25' stop-color='%23a78bfa'/%3E%3Cstop offset='100%25' stop-color='%231e1b4b'/%3E%3C/radialGradient%3E%3C/defs%3E%3Ccircle cx='50' cy='50' r='48' fill='url(%23g)'/%3E%3Ctext x='50' y='68' font-size='60' text-anchor='middle' fill='%23fff' font-family='serif' font-weight='700'%3E%E2%9C%A6%3C/text%3E%3C/svg%3E">
 
-<!-- Open Graph (for shared link previews) -->
 <meta property="og:title" content="Cryptic Astro Crossword">
 <meta property="og:description" content="A cryptic crossword puzzle written in the stars. ✦">
 <meta property="og:type" content="website">
@@ -50,9 +48,6 @@ body.dark {
 }
 body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; transition: background 0.3s, color 0.3s; }
 
-/* ─────────────────────────────────────────────
-   WELCOME / INTRO SCREENS
-   ───────────────────────────────────────────── */
 .intro-screen {
     position: fixed; inset: 0; z-index: 500;
     background: radial-gradient(ellipse at 20% 10%, #1e1b4b 0%, #0a0a1a 60%, #050510 100%);
@@ -195,9 +190,6 @@ body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--tex
     .welcome-card { padding: 30px 20px; }
 }
 
-/* ─────────────────────────────────────────────
-   MAIN GAME UI
-   ───────────────────────────────────────────── */
 #toggle-banner { background: var(--bg-banner); border-bottom: 1px solid var(--border); padding: 8px 16px; position: sticky; top: 0; z-index: 100; box-shadow: var(--shadow); }
 .banner-content { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 18px; flex-wrap: wrap; min-height: 38px; }
 .banner-left { display: flex; align-items: center; gap: 14px; flex-shrink: 1; min-width: 0; }
@@ -207,7 +199,6 @@ body.dark .banner-title { background: linear-gradient(90deg, #a78bfa, #60a5fa, #
 .banner-subtitle strong { color: #dc2626; }
 body.dark .banner-subtitle strong { color: #f87171; }
 
-/* New: Instructions re-open link inside the banner */
 #btn-instructions {
     font-size: 0.78rem; font-weight: 600; color: var(--accent);
     background: none; border: 1px solid var(--accent); padding: 4px 10px;
@@ -276,12 +267,7 @@ body.dark .toggle-switch input:checked + .slider { background: #6366f1; }
 #correct-flash { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.7); background: var(--green); color: #fff; font-size: 2.4rem; font-weight: 800; padding: 20px 50px; border-radius: 16px; letter-spacing: 4px; box-shadow: 0 20px 60px rgba(16,185,129,0.4); opacity: 0; pointer-events: none; z-index: 200; transition: all 0.25s ease-out; font-family: 'Inter', sans-serif; }
 #correct-flash.show { opacity: 1; transform: translate(-50%, -50%) scale(1); }
 
-/* Confetti canvas — fixed, full-screen, non-interactive */
-#confetti-canvas {
-    position: fixed; inset: 0; pointer-events: none;
-    z-index: 250;
-    display: none;
-}
+#confetti-canvas { position: fixed; inset: 0; pointer-events: none; z-index: 250; display: none; }
 #confetti-canvas.active { display: block; }
 
 #current-clue-display { margin-top: 12px; padding: 12px 16px; background: var(--bg-elev); border: 1px solid var(--border); border-radius: 8px; font-family: 'Spectral', serif; font-size: 1.05rem; width: calc(44px * 11 + 6px); line-height: 1.45; color: var(--text-soft); box-shadow: var(--shadow); }
@@ -331,7 +317,6 @@ body.show-indicator .seg-indicator { color: var(--seg-indicator); font-style: it
 </head>
 <body>
 
-<!-- ─── WELCOME SCREEN ─── -->
 <div class="intro-screen" id="screen-welcome">
     <div class="intro-content">
         <div class="welcome-card">
@@ -350,7 +335,6 @@ body.show-indicator .seg-indicator { color: var(--seg-indicator); font-style: it
     </div>
 </div>
 
-<!-- ─── INSTRUCTIONS SCREEN ─── -->
 <div class="intro-screen" id="screen-instructions" style="display:none;">
     <div class="intro-content">
         <div class="instr-header">
@@ -398,7 +382,6 @@ body.show-indicator .seg-indicator { color: var(--seg-indicator); font-style: it
     </div>
 </div>
 
-<!-- ─── TIP DIALOG ─── -->
 <div class="intro-screen" id="screen-tip" style="display:none;">
     <div class="intro-content">
         <div class="tip-dialog">
@@ -416,7 +399,6 @@ body.show-indicator .seg-indicator { color: var(--seg-indicator); font-style: it
     </div>
 </div>
 
-<!-- ─── MAIN GAME ─── -->
 <div id="game-root" style="display:none;">
     <div id="toggle-banner">
         <div class="banner-content">
@@ -478,7 +460,6 @@ body.show-indicator .seg-indicator { color: var(--seg-indicator); font-style: it
     </div>
 </div>
 
-<!-- Firebase v10 modular SDK -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
 import { getFirestore, collection, addDoc, getDocs, query, orderBy, limit, serverTimestamp }
@@ -519,7 +500,6 @@ window.dispatchEvent(new Event('firebase-ready'));
 </script>
 
 <script>
-// ============ CLUE ANNOTATIONS ============
 const CLUE_ANNOTATIONS = {
 "1A":{number:1,direction:"across",answer:"APOPHIS",length:"(7)",segments:[
     {text:"Sappho",type:"fodder"},{text:" ",type:"aux"},{text:"and",type:"aux"},{text:" ",type:"aux"},
@@ -648,7 +628,6 @@ const CONFIG = {
 const TOTAL_WORDS = Object.keys(CLUE_ANNOTATIONS).length;
 const MAX_POSSIBLE_SCORE = TOTAL_WORDS * CONFIG.POINTS_PER_WORD;
 
-// ============ STATE ============
 let currentClueId = null, currentDirection = 'across', currentRow = null, currentCol = null;
 let cells = {};
 let wordState = {};
@@ -663,7 +642,6 @@ let submitted = false;
 let playerName = '';
 let gameStarted = false;
 
-// ============ LEADERBOARD CACHE ============
 let lbCache = null;
 const LB_CACHE_MAX_MS = 30 * 1000;
 
@@ -681,7 +659,6 @@ if (window._lbPrefetchPromise) {
     });
 }
 
-// ============ PERSISTENCE ============
 function saveState() {
     if (submitted) return;
     const letters = {};
@@ -730,7 +707,6 @@ function loadState() {
     } catch(e) { return false; }
 }
 
-// ============ INIT ============
 document.addEventListener('DOMContentLoaded', () => {
     buildGrid();
     renderClues();
@@ -753,7 +729,21 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('beforeunload', saveState);
 });
 
-// ============ INTRO FLOW ============
+// ============ NEW: Fire-and-forget "someone started" logger ============
+async function logStart(name) {
+    if (!window.FB) return;
+    try {
+        const { db, collection, addDoc, serverTimestamp } = window.FB;
+        await addDoc(collection(db, "starts"), {
+            name,
+            startedAt: serverTimestamp(),
+            userAgent: navigator.userAgent.slice(0, 200)
+        });
+    } catch (e) {
+        console.warn('start-log failed (non-critical):', e);
+    }
+}
+
 function setupIntroFlow() {
     const nameInput = document.getElementById('welcome-name-input');
     const startBtn  = document.getElementById('welcome-start-btn');
@@ -765,6 +755,8 @@ function setupIntroFlow() {
 
     startBtn.addEventListener('click', () => {
         playerName = nameInput.value.trim();
+        // 🚀 Log the start — fire-and-forget, never blocks the user
+        logStart(playerName);
         transitionScreen('screen-welcome', 'screen-instructions');
     });
 
@@ -778,7 +770,6 @@ function setupIntroFlow() {
         setTimeout(() => {
             instr.style.display = 'none';
             instr.classList.remove('fade-out');
-            // Restore the original button visibility for next first-time view
             document.getElementById('instr-continue-btn').style.display = '';
             document.getElementById('instr-back-to-game-btn').style.display = 'none';
         }, 400);
@@ -831,17 +822,14 @@ function showGame() {
     saveState();
 }
 
-// Re-open the instructions page from inside the game
 function reopenInstructions() {
     const instr = document.getElementById('screen-instructions');
-    // Swap the buttons: hide "Continue", show "Back to Puzzle"
     document.getElementById('instr-continue-btn').style.display = 'none';
     document.getElementById('instr-back-to-game-btn').style.display = '';
     instr.style.display = 'flex';
     instr.scrollTop = 0;
 }
 
-// ============ GRID ============
 function buildGrid() {
     const gridEl = document.getElementById('crossword-grid');
     for (let r = 0; r < GRID_SIZE; r++) {
@@ -879,7 +867,6 @@ function buildGrid() {
     }
 }
 
-// ============ CLUE RENDERING ============
 function renderClues() {
     const acrossList = document.getElementById('across-list');
     const downList   = document.getElementById('down-list');
@@ -912,7 +899,6 @@ function getClueLabel(id) {
     return clue.number + ' ' + (clue.direction === 'across' ? 'Across' : 'Down');
 }
 
-// ============ INPUT / NAVIGATION ============
 function handleCellClick(e, row, col) {
     e.preventDefault();
     if (SOLUTION[row][col] === '#' || gameOver) return;
@@ -949,7 +935,6 @@ function handleInput(e, row, col) {
 function handleKeyDown(e) {
     if (currentRow === null || currentCol === null || gameOver) return;
     if (document.getElementById('modal-backdrop').classList.contains('show')) return;
-    // Don't intercept keys while an intro screen is visible
     const instr = document.getElementById('screen-instructions');
     if (instr && instr.style.display !== 'none') return;
     switch (e.key) {
@@ -1068,7 +1053,6 @@ function clueIdsForCell(row, col) {
     return Object.keys(CLUE_CELLS).filter(id => CLUE_CELLS[id].some(c => c.row === row && c.col === col));
 }
 
-// ============ TOGGLES ============
 function setupToggles() {
     document.getElementById('toggle-def').addEventListener('change', e => document.body.classList.toggle('show-def', e.target.checked));
     document.getElementById('toggle-fodder').addEventListener('change', e => document.body.classList.toggle('show-fodder', e.target.checked));
@@ -1077,7 +1061,6 @@ function setupToggles() {
     document.getElementById('btn-instructions').addEventListener('click', reopenInstructions);
 }
 
-// ============ TIMER ============
 function startTimer() {
     updateTimerDisplay();
     timerInterval = setInterval(() => {
@@ -1110,7 +1093,6 @@ function endGameByTimeout() {
     promptSubmit("⏱ Time's up!", "Your time has run out. Submit your score to the leaderboard?");
 }
 
-// ============ STATUS BAR ============
 function updateStatusBar() {
     document.getElementById('score-value').textContent = score;
     const ws      = currentClueId ? wordState[currentClueId] : null;
@@ -1129,7 +1111,6 @@ function updateStatusBar() {
     btnSubmit.disabled = submitted;
 }
 
-// ============ WORD CHECKING / AWARDING ============
 function checkWordsAtCell(row, col) {
     clueIdsForCell(row, col).forEach(id => {
         const ws = wordState[id];
@@ -1167,7 +1148,6 @@ function checkAllSolved() {
     }
 }
 
-// ============ CONFETTI 🎊 ============
 let confettiCanvas, confettiCtx, confettiAnimId = null, confettiParticles = [], confettiStartTime = 0;
 const CONFETTI_COLOURS = ['#a78bfa', '#f0abfc', '#60a5fa', '#34d399', '#fbbf24', '#f87171', '#c4b5fd', '#fff'];
 
@@ -1206,7 +1186,7 @@ function launchConfetti() {
 }
 function animateConfetti() {
     const elapsed = performance.now() - confettiStartTime;
-    const DURATION = 4500; // ms total
+    const DURATION = 4500;
     const FADE_START = 3200;
     confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
     const fadeAlpha = elapsed < FADE_START ? 1 : Math.max(0, 1 - (elapsed - FADE_START) / (DURATION - FADE_START));
@@ -1215,7 +1195,7 @@ function animateConfetti() {
     confettiParticles.forEach(p => {
         p.x   += p.vx;
         p.y   += p.vy;
-        p.vy  += 0.08;        // gravity
+        p.vy  += 0.08;
         p.rot += p.vrot;
         confettiCtx.save();
         confettiCtx.translate(p.x, p.y);
@@ -1241,7 +1221,6 @@ function animateConfetti() {
     }
 }
 
-// ============ ACTION BUTTONS ============
 function setupActionButtons() {
     document.getElementById('btn-check').addEventListener('click', onCheckClicked);
     document.getElementById('btn-reveal').addEventListener('click', onRevealClicked);
@@ -1304,7 +1283,6 @@ function performReveal(clueId, refundChecks) {
     updateStatusBar(); saveState();
 }
 
-// ============ SUBMIT FLOW ============
 function getStats() {
     let correct = 0, revealed = 0;
     Object.keys(wordState).forEach(id => {
@@ -1371,7 +1349,6 @@ async function doSubmit(name) {
     }
 }
 
-// ============ LEADERBOARD ============
 async function showLeaderboard(forceRefresh = false) {
     const now = Date.now();
     const cacheOk = !forceRefresh && lbCache && (now - lbCache.fetchedAt) < LB_CACHE_MAX_MS;
@@ -1443,7 +1420,6 @@ function renderLeaderboardModal(rows, forceRefresh, alreadyOpen = false) {
 
 function escapeHtml(s) { return String(s).replace(/[&<>"']/g, m => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m])); }
 
-// ============ MODAL ============
 function setupModal() {
     document.getElementById('modal-cancel').addEventListener('click', hideModal);
     document.getElementById('modal-backdrop').addEventListener('click', e => {
