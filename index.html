@@ -226,6 +226,15 @@ const db  = getFirestore(app);
 
 // Expose to non-module code below
 window.FB = { db, collection, addDoc, getDocs, query, orderBy, limit, serverTimestamp };
+
+// 🔥 Warm-up: kick off a tiny query immediately so the SDK connects in the background.
+// By the time the user clicks "Leaderboard", the network handshake is already done.
+(async () => {
+    try {
+        await getDocs(query(collection(db, "scores"), limit(1)));
+    } catch (e) { /* ignore warm-up failures */ }
+})();
+
 window.dispatchEvent(new Event('firebase-ready'));
 </script>
 
@@ -978,7 +987,7 @@ async function doSubmit(name) {
             title: "✅ Submitted!",
             body: `Your score of <strong>${score}</strong> is on the leaderboard.`,
             confirmText: "View Leaderboard", showCancel: false,
-            onConfirm: () => showLeaderboard()
+            onConfirm: () => { leaderboardCache = null; showLeaderboard(true); }
         });
     } catch (err) {
         console.error(err);
@@ -990,8 +999,11 @@ async function doSubmit(name) {
     }
 }
 
-// ============ LEADERBOARD ============
-async function showLeaderboard() {
+let leaderboardCache = null;
+let leaderboardFetchedAt = 0;
+const LEADERBOARD_CACHE_MS = 15 * 1000; // 15-second cache
+
+async function showLeaderboard(forceRefresh = false) {
     showModal({
         title: "🏆 Leaderboard",
         body: `<div class="lb-empty">Loading…</div>`,
@@ -1001,49 +1013,67 @@ async function showLeaderboard() {
         document.getElementById('modal-body').innerHTML = `<div class="lb-empty">Firebase not loaded.</div>`;
         return;
     }
-    try {
-        const { db, collection, getDocs, query, orderBy, limit } = window.FB;
-        // Order by score DESC, then time used ASC. Firestore needs a composite index for two-field ordering, so:
-        // We just orderBy(score, desc) and sort the tiebreaker client-side. Simpler, no index setup.
-        const q = query(collection(db, "scores"), orderBy("score", "desc"), limit(100));
-        const snap = await getDocs(q);
-        const rows = [];
-        snap.forEach(doc => {
-            const d = doc.data();
-            rows.push({
-                id: doc.id,
-                name: d.name || '?',
-                score: d.score || 0,
-                timeUsedSeconds: d.timeUsedSeconds || 0,
-                wordsCorrect: d.wordsCorrect || 0,
-                wordsRevealed: d.wordsRevealed || 0
-            });
-        });
-        // Tiebreaker: lower time first
-        rows.sort((a,b) => b.score - a.score || a.timeUsedSeconds - b.timeUsedSeconds);
 
-        if (rows.length === 0) {
-            document.getElementById('modal-body').innerHTML = `<div class="lb-empty">No scores yet — be the first!</div>`;
+    const now = Date.now();
+    const useCache = !forceRefresh && leaderboardCache && (now - leaderboardFetchedAt) < LEADERBOARD_CACHE_MS;
+
+    let rows;
+    if (useCache) {
+        rows = leaderboardCache;
+    } else {
+        try {
+            const { db, collection, getDocs, query, orderBy, limit } = window.FB;
+            const q = query(collection(db, "scores"), orderBy("score", "desc"), limit(100));
+            const snap = await getDocs(q);
+            rows = [];
+            snap.forEach(doc => {
+                const d = doc.data();
+                rows.push({
+                    id: doc.id,
+                    name: d.name || '?',
+                    score: d.score || 0,
+                    timeUsedSeconds: d.timeUsedSeconds || 0,
+                    wordsCorrect: d.wordsCorrect || 0,
+                    wordsRevealed: d.wordsRevealed || 0
+                });
+            });
+            rows.sort((a,b) => b.score - a.score || a.timeUsedSeconds - b.timeUsedSeconds);
+            leaderboardCache = rows;
+            leaderboardFetchedAt = now;
+        } catch (err) {
+            console.error(err);
+            document.getElementById('modal-body').innerHTML = `<div class="lb-empty">Failed to load leaderboard. Error: ${escapeHtml((err && err.message) || String(err))}</div>`;
             return;
         }
-        let html = `<table class="lb-table"><thead><tr><th class="lb-rank">#</th><th>Name</th><th>Score</th><th>Time</th><th>✓ / 💡</th></tr></thead><tbody>`;
-        rows.forEach((r, i) => {
-            const isMe = submitted && r.name === playerName;
-            html += `<tr class="${isMe ? 'me' : ''}">
-                <td class="lb-rank">${i+1}</td>
-                <td>${escapeHtml(r.name)}</td>
-                <td class="lb-score">${r.score}</td>
-                <td class="lb-time">${fmtDuration(r.timeUsedSeconds)}</td>
-                <td class="lb-time">${r.wordsCorrect} / ${r.wordsRevealed}</td>
-            </tr>`;
-        });
-        html += `</tbody></table>`;
-        document.getElementById('modal-body').innerHTML = html;
-    } catch (err) {
-        console.error(err);
-        document.getElementById('modal-body').innerHTML = `<div class="lb-empty">Failed to load leaderboard. Error: ${escapeHtml((err && err.message) || String(err))}</div>`;
     }
+
+    if (rows.length === 0) {
+        document.getElementById('modal-body').innerHTML = `<div class="lb-empty">No scores yet — be the first!</div>`;
+        return;
+    }
+
+    const cacheNote = useCache
+        ? `<div style="text-align:right;font-size:0.78rem;color:var(--text-muted);margin-bottom:6px;">Cached — <a href="#" id="lb-refresh" style="color:var(--accent);text-decoration:underline;">refresh</a></div>`
+        : '';
+    let html = cacheNote + `<table class="lb-table"><thead><tr><th class="lb-rank">#</th><th>Name</th><th>Score</th><th>Time</th><th>✓ / 💡</th></tr></thead><tbody>`;
+    rows.forEach((r, i) => {
+        const isMe = submitted && r.name === playerName;
+        html += `<tr class="${isMe ? 'me' : ''}">
+            <td class="lb-rank">${i+1}</td>
+            <td>${escapeHtml(r.name)}</td>
+            <td class="lb-score">${r.score}</td>
+            <td class="lb-time">${fmtDuration(r.timeUsedSeconds)}</td>
+            <td class="lb-time">${r.wordsCorrect} / ${r.wordsRevealed}</td>
+        </tr>`;
+    });
+    html += `</tbody></table>`;
+    document.getElementById('modal-body').innerHTML = html;
+
+    // Wire up the refresh link
+    const refreshBtn = document.getElementById('lb-refresh');
+    if (refreshBtn) refreshBtn.addEventListener('click', (e) => { e.preventDefault(); leaderboardCache = null; showLeaderboard(true); });
 }
+
 function escapeHtml(s) { return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
 
 // ============ MODAL ============
