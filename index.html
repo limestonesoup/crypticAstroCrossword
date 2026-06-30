@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Cryptic Astro Crossword</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Spectral:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800&family=Inter:wght@400;500;600;700;800&family=Spectral:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -39,6 +39,287 @@ body.dark {
 }
 body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; transition: background 0.3s, color 0.3s; }
 
+/* ─────────────────────────────────────────────
+   WELCOME / INTRO SCREENS
+   ───────────────────────────────────────────── */
+.intro-screen {
+    position: fixed; inset: 0; z-index: 500;
+    background: radial-gradient(ellipse at 20% 10%, #1e1b4b 0%, #0a0a1a 60%, #050510 100%);
+    color: #f0f0ff; overflow-y: auto;
+    display: flex; align-items: center; justify-content: center;
+    padding: 30px 20px;
+    animation: fadeIn 0.5s ease-out;
+}
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
+.intro-screen.fade-out { animation: fadeOut 0.4s ease-out forwards; }
+
+/* Starfield background — pure CSS, lightweight */
+.intro-screen::before {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background-image:
+        radial-gradient(1px 1px at 20% 30%, #fff, transparent),
+        radial-gradient(1px 1px at 40% 70%, #fff, transparent),
+        radial-gradient(1.5px 1.5px at 60% 20%, #fff, transparent),
+        radial-gradient(1px 1px at 80% 50%, #fff, transparent),
+        radial-gradient(1px 1px at 15% 80%, #fff, transparent),
+        radial-gradient(2px 2px at 90% 15%, #fff, transparent),
+        radial-gradient(1px 1px at 50% 90%, #fff, transparent),
+        radial-gradient(1.5px 1.5px at 30% 50%, #fff, transparent),
+        radial-gradient(1px 1px at 70% 80%, #fff, transparent),
+        radial-gradient(1px 1px at 5% 5%, #fff, transparent);
+    background-size: 600px 600px;
+    opacity: 0.55;
+    animation: drift 60s linear infinite;
+}
+@keyframes drift { from { background-position: 0 0; } to { background-position: 600px 600px; } }
+
+.intro-content { position: relative; z-index: 2; max-width: 1200px; width: 100%; }
+
+/* ─── Welcome screen ─── */
+.welcome-card {
+    text-align: center;
+    padding: 50px 40px;
+    max-width: 640px;
+    margin: 0 auto;
+}
+.welcome-title {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(2.4rem, 6vw, 4rem);
+    font-weight: 700;
+    letter-spacing: 2px;
+    background: linear-gradient(135deg, #a78bfa 0%, #f0abfc 50%, #60a5fa 100%);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 12px;
+    line-height: 1.15;
+    text-shadow: 0 0 40px rgba(167,139,250,0.25);
+}
+.welcome-subtitle {
+    font-family: 'Spectral', serif;
+    font-style: italic;
+    font-size: clamp(1.05rem, 2vw, 1.3rem);
+    color: #c4b5fd;
+    margin-bottom: 40px;
+    letter-spacing: 1px;
+}
+.welcome-name-box {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(167,139,250,0.3);
+    border-radius: 16px;
+    padding: 28px;
+    margin-bottom: 24px;
+    backdrop-filter: blur(8px);
+}
+.welcome-label {
+    display: block;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 2.5px;
+    color: #c4b5fd;
+    margin-bottom: 14px;
+    font-weight: 600;
+}
+.welcome-input {
+    width: 100%;
+    padding: 14px 18px;
+    font-size: 1.2rem;
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+    background: rgba(0,0,0,0.3);
+    color: #fff;
+    border: 2px solid rgba(167,139,250,0.4);
+    border-radius: 10px;
+    text-align: center;
+    transition: all 0.2s;
+}
+.welcome-input::placeholder { color: rgba(196,181,253,0.5); }
+.welcome-input:focus {
+    outline: none;
+    border-color: #a78bfa;
+    background: rgba(0,0,0,0.45);
+    box-shadow: 0 0 0 4px rgba(167,139,250,0.15);
+}
+.intro-btn {
+    display: inline-block;
+    padding: 14px 44px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    font-family: 'Inter', sans-serif;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: #fff;
+    background: linear-gradient(135deg, #7c3aed 0%, #6366f1 100%);
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 10px 30px rgba(124,58,237,0.4);
+}
+.intro-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 14px 36px rgba(124,58,237,0.55);
+    filter: brightness(1.1);
+}
+.intro-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.intro-btn.secondary {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(167,139,250,0.4);
+    box-shadow: none;
+}
+.intro-btn.secondary:hover:not(:disabled) {
+    background: rgba(167,139,250,0.15);
+    box-shadow: 0 6px 20px rgba(167,139,250,0.2);
+}
+.welcome-hint {
+    margin-top: 18px;
+    font-size: 0.85rem;
+    color: rgba(196,181,253,0.7);
+    font-style: italic;
+}
+
+/* ─── Instructions screen (two columns) ─── */
+.instr-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+.instr-header h1 {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(1.8rem, 4vw, 2.6rem);
+    font-weight: 700;
+    letter-spacing: 3px;
+    background: linear-gradient(135deg, #a78bfa 0%, #f0abfc 50%, #60a5fa 100%);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 8px;
+}
+.instr-header p {
+    font-family: 'Spectral', serif;
+    font-style: italic;
+    font-size: 1.05rem;
+    color: #c4b5fd;
+}
+.instr-cols {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 28px;
+    margin-bottom: 30px;
+}
+.instr-card {
+    background: rgba(0,0,0,0.35);
+    border: 1px solid rgba(167,139,250,0.25);
+    border-radius: 18px;
+    padding: 32px 30px;
+    backdrop-filter: blur(8px);
+    min-height: 100%;
+}
+.instr-card h2 {
+    font-family: 'Cinzel', serif;
+    font-size: 1.7rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-align: center;
+    margin-bottom: 22px;
+    background: linear-gradient(135deg, #c4b5fd, #f0abfc);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+.instr-card p,
+.instr-card li {
+    font-family: 'Spectral', serif;
+    font-size: 1.1rem;
+    line-height: 1.65;
+    color: #e8e6ff;
+    margin-bottom: 14px;
+}
+.instr-card .lede {
+    font-style: italic;
+    color: #f0abfc;
+    text-align: center;
+    margin-bottom: 18px;
+    font-size: 1.15rem;
+}
+.instr-card ol { padding-left: 22px; }
+.instr-card ol li { margin-bottom: 18px; padding-left: 6px; }
+.instr-card ol li::marker { color: #a78bfa; font-weight: 700; }
+
+/* Colour helpers used inside the instructions text */
+.demo-def      { color: #34d399; text-decoration: underline; text-decoration-thickness: 1.5px; text-underline-offset: 3px; font-weight: 600; }
+.demo-fodder   { color: #f87171; font-weight: 600; }
+.demo-indicator{ color: #60a5fa; font-style: italic; font-weight: 600; }
+
+.legend-box {
+    margin-top: 14px;
+    padding: 18px 20px;
+    background: rgba(0,0,0,0.35);
+    border-radius: 12px;
+    border: 1px dashed rgba(167,139,250,0.3);
+    text-align: center;
+}
+.legend-box .legend-row {
+    font-family: 'Spectral', serif;
+    font-size: 1.05rem;
+    margin: 8px 0;
+}
+.legend-box .lbl {
+    display: inline-block;
+    min-width: 130px;
+    text-align: right;
+    color: #c4b5fd;
+    font-weight: 600;
+    margin-right: 10px;
+    letter-spacing: 1px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+}
+
+.instr-actions { text-align: center; }
+
+/* ─── Tip dialog (the small one before game starts) ─── */
+.tip-dialog {
+    background: rgba(15,15,30,0.92);
+    border: 1px solid rgba(167,139,250,0.35);
+    border-radius: 16px;
+    padding: 32px 36px;
+    max-width: 540px;
+    margin: 0 auto;
+    text-align: center;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+}
+.tip-dialog h2 {
+    font-family: 'Cinzel', serif;
+    font-size: 1.6rem;
+    background: linear-gradient(135deg, #a78bfa, #f0abfc);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 18px;
+    letter-spacing: 2px;
+}
+.tip-dialog p {
+    font-family: 'Spectral', serif;
+    font-size: 1.1rem;
+    color: #e8e6ff;
+    line-height: 1.6;
+    margin-bottom: 14px;
+}
+.tip-dialog .strong-note {
+    color: #fbbf24;
+    font-weight: 600;
+    font-style: italic;
+}
+.tip-dialog .ok-row { margin-top: 26px; }
+
+@media (max-width: 820px) {
+    .instr-cols { grid-template-columns: 1fr; }
+    .instr-card { padding: 26px 22px; }
+    .welcome-card { padding: 30px 20px; }
+}
+
+/* ─────────────────────────────────────────────
+   MAIN GAME UI (unchanged structure)
+   ───────────────────────────────────────────── */
 #toggle-banner { background: var(--bg-banner); border-bottom: 1px solid var(--border); padding: 8px 16px; position: sticky; top: 0; z-index: 100; box-shadow: var(--shadow); }
 .banner-content { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 18px; flex-wrap: wrap; min-height: 38px; }
 .banner-left { display: flex; align-items: center; gap: 10px; flex-shrink: 1; min-width: 0; }
@@ -76,10 +357,13 @@ body.dark .toggle-switch input:checked + .slider { background: #6366f1; }
 .action-btn.success { background: var(--green); color: #fff; border-color: var(--green); }
 .action-btn.success:hover:not(:disabled) { filter: brightness(1.08); }
 .spacer { flex: 1; }
+#player-pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 6px 12px; background: var(--accent-soft); border-radius: 8px;
+    font-size: 0.88rem; font-weight: 600; color: var(--accent);
+}
 
-/* Leaderboard button state */
 #btn-leaderboard.lb-ready { border-color: var(--accent); color: var(--accent); }
-#btn-leaderboard.lb-loading { opacity: 0.7; }
 
 #main-container { display: grid; grid-template-columns: auto minmax(0, 1fr) minmax(0, 1fr); gap: 20px; width: 100%; padding: 18px 16px; align-items: start; }
 .section-title { font-size: 0.82rem; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; color: var(--accent); margin-bottom: 10px; }
@@ -123,7 +407,6 @@ body.show-fodder .seg-fodder { color: var(--seg-fodder); font-weight: 500; }
 body.show-indicator .seg-indicator { color: var(--seg-indicator); font-style: italic; font-weight: 500; }
 .seg-aux { color: inherit; font-style: normal; }
 
-/* ── Modal ── */
 #modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.45); display: none; align-items: center; justify-content: center; z-index: 300; backdrop-filter: blur(2px); }
 #modal-backdrop.show { display: flex; }
 .modal-box { background: var(--bg-elev); border-radius: 14px; padding: 24px 28px; max-width: 560px; width: calc(100% - 32px); box-shadow: 0 20px 60px rgba(0,0,0,0.25); border: 1px solid var(--border); max-height: 85vh; overflow-y: auto; }
@@ -134,7 +417,6 @@ body.show-indicator .seg-indicator { color: var(--seg-indicator); font-style: it
 .modal-body input[type=text]:focus { outline: none; border-color: var(--accent); }
 .modal-actions { display: flex; justify-content: flex-end; gap: 10px; }
 
-/* ── Leaderboard table ── */
 .lb-meta { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; font-size: 0.8rem; color: var(--text-muted); }
 .lb-meta a { color: var(--accent); text-decoration: underline; cursor: pointer; }
 .lb-table { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
@@ -154,46 +436,140 @@ body.show-indicator .seg-indicator { color: var(--seg-indicator); font-style: it
 </head>
 <body>
 
-<div id="toggle-banner">
-    <div class="banner-content">
-        <div class="banner-left">
-            <span class="banner-title">🔍 Annotation Toggles</span>
-            <span class="banner-subtitle">— Visual learning helpers, <strong>won't affect score</strong></span>
-        </div>
-        <div class="toggle-group">
-            <label class="toggle-switch"><input type="checkbox" id="toggle-def"><span class="slider"></span><span class="toggle-label"><span class="swatch swatch-def"></span>Definitions</span></label>
-            <label class="toggle-switch"><input type="checkbox" id="toggle-fodder"><span class="slider"></span><span class="toggle-label"><span class="swatch swatch-fodder"></span>Fodder</span></label>
-            <label class="toggle-switch"><input type="checkbox" id="toggle-indicator"><span class="slider"></span><span class="toggle-label"><span class="swatch swatch-indicator"></span>Indicators</span></label>
-            <div class="toggle-divider"></div>
-            <label class="toggle-switch"><input type="checkbox" id="toggle-theme"><span class="slider"></span><span class="toggle-label">🌙 Dark</span></label>
+<!-- ─── WELCOME SCREEN ─── -->
+<div class="intro-screen" id="screen-welcome">
+    <div class="intro-content">
+        <div class="welcome-card">
+            <h1 class="welcome-title">Cryptic Astro<br>Crossword</h1>
+            <p class="welcome-subtitle">✦ A puzzle written in the stars ✦</p>
+
+            <div class="welcome-name-box">
+                <label class="welcome-label" for="welcome-name-input">Enter your name</label>
+                <input type="text" class="welcome-input" id="welcome-name-input"
+                       placeholder="e.g., Stargazer" maxlength="30" autocomplete="off">
+            </div>
+
+            <button class="intro-btn" id="welcome-start-btn" disabled>Begin →</button>
+            <p class="welcome-hint">Your name will appear on the leaderboard</p>
         </div>
     </div>
 </div>
 
-<div id="status-bar">
-    <div class="status-block"><span class="status-label">⏱ Time</span><span class="status-value" id="timer-value">1:30:00</span></div>
-    <div class="status-block"><span class="status-label">★ Score</span><span class="status-value" id="score-value">0</span></div>
-    <div class="status-block"><span class="status-label">✓ Checks (this word)</span><span class="status-value" id="checks-value">0 / 3</span></div>
-    <div class="spacer"></div>
-    <button class="action-btn" id="btn-check">🔍 Check Word <span style="opacity:.7;">(−3)</span></button>
-    <button class="action-btn danger" id="btn-reveal">💡 Reveal Word <span style="opacity:.7;">(−10)</span></button>
-    <button class="action-btn success" id="btn-submit">📤 Submit</button>
-    <button class="action-btn" id="btn-leaderboard">🏆 Leaderboard</button>
+<!-- ─── INSTRUCTIONS SCREEN ─── -->
+<div class="intro-screen" id="screen-instructions" style="display:none;">
+    <div class="intro-content">
+        <div class="instr-header">
+            <h1>How It Works</h1>
+            <p>A two-minute primer before you set sail among the stars</p>
+        </div>
+
+        <div class="instr-cols">
+            <!-- LEFT: What is a cryptic? -->
+            <div class="instr-card">
+                <h2>Cryptic Crosswords</h2>
+                <p class="lede">Wait — this isn't my normal crossword!</p>
+
+                <p>A Cryptic Crossword is much like a normal one, except that each clue is given <strong>two ways</strong>:</p>
+
+                <p>• Once as the <strong>Definition</strong> — a synonym or hint for the answer.<br>
+                • Once as the <strong>Wordplay</strong> — basically word-math (anagrams, hidden letters, reversals…).</p>
+
+                <p><strong>Don't worry!</strong> For your convenience, we've colour-marked every clue:</p>
+
+                <div class="legend-box">
+                    <div class="legend-row"><span class="lbl">Definitions</span> <span class="demo-def">like this — green &amp; underlined</span></div>
+                    <div class="legend-row"><span class="lbl">Indicators</span> <span class="demo-indicator">like this — blue &amp; italic</span></div>
+                    <div class="legend-row"><span class="lbl">Fodder</span> <span class="demo-fodder">like this — red</span></div>
+                </div>
+            </div>
+
+            <!-- RIGHT: Examples -->
+            <div class="instr-card">
+                <h2>Solving Examples</h2>
+                <ol>
+                    <li><span class="demo-fodder">Heart</span>-<span class="demo-indicator">broken</span> <span class="demo-def">Planet (5)</span>
+                    <br>= <em>broken</em> signals an <strong>anagram</strong>; rearranging the 5-letter fodder <strong>HEART</strong> gives <strong>EARTH</strong>, which is a planet. ✦</li>
+
+                    <li><span class="demo-fodder">Lithium Street</span> <span class="demo-indicator">is</span> in <span class="demo-def">order (4)</span>
+                    <br>= Lithium = <strong>LI</strong>, Street is often written <strong>ST</strong>; <strong>LI + ST = LIST</strong>, a type of order.</li>
+
+                    <li><span class="demo-indicator">Odds of</span> <span class="demo-fodder">heart</span> is a <span class="demo-def">head cover (3)</span>
+                    <br>= take the <em>odd</em> letters of <strong>HEART</strong>: <strong>H, A, T → HAT</strong>, a head covering.</li>
+
+                    <li><span class="demo-fodder">Postscript</span> <span class="demo-indicator">contains</span> <span class="demo-fodder">ant</span> in <span class="demo-def">legwear (5)</span>
+                    <br>= <strong>ANT</strong> contained in Postscript = <strong>PS</strong>: you get <strong>P-ANT-S</strong>, which is legwear.</li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="instr-actions">
+            <button class="intro-btn" id="instr-continue-btn">Continue →</button>
+        </div>
+    </div>
 </div>
 
-<div id="main-container">
-    <div id="grid-section">
-        <h2 class="section-title">Grid</h2>
-        <div id="crossword-grid"></div>
-        <div id="current-clue-display"></div>
+<!-- ─── TIP DIALOG ─── -->
+<div class="intro-screen" id="screen-tip" style="display:none;">
+    <div class="intro-content">
+        <div class="tip-dialog">
+            <h2>One Quick Tip</h2>
+            <p>At the top of the screen you'll find toggles for
+                <span class="demo-def">Definitions</span>,
+                <span class="demo-indicator">Indicators</span> and
+                <span class="demo-fodder">Fodder</span>.</p>
+            <p>Turn them on or off any time — they're just learning helpers.</p>
+            <p class="strong-note">Using them will <u>not</u> affect your score.</p>
+            <div class="ok-row">
+                <button class="intro-btn" id="tip-start-btn">Let's Solve! ✦</button>
+            </div>
+        </div>
     </div>
-    <div id="across-clues">
-        <h2 class="section-title">Across</h2>
-        <div id="across-list"></div>
+</div>
+
+<!-- ─── MAIN GAME (hidden until intro is done) ─── -->
+<div id="game-root" style="display:none;">
+    <div id="toggle-banner">
+        <div class="banner-content">
+            <div class="banner-left">
+                <span class="banner-title">🔍 Annotation Toggles</span>
+                <span class="banner-subtitle">— Visual learning helpers, <strong>won't affect score</strong></span>
+            </div>
+            <div class="toggle-group">
+                <label class="toggle-switch"><input type="checkbox" id="toggle-def"><span class="slider"></span><span class="toggle-label"><span class="swatch swatch-def"></span>Definitions</span></label>
+                <label class="toggle-switch"><input type="checkbox" id="toggle-fodder"><span class="slider"></span><span class="toggle-label"><span class="swatch swatch-fodder"></span>Fodder</span></label>
+                <label class="toggle-switch"><input type="checkbox" id="toggle-indicator"><span class="slider"></span><span class="toggle-label"><span class="swatch swatch-indicator"></span>Indicators</span></label>
+                <div class="toggle-divider"></div>
+                <label class="toggle-switch"><input type="checkbox" id="toggle-theme"><span class="slider"></span><span class="toggle-label">🌙 Dark</span></label>
+            </div>
+        </div>
     </div>
-    <div id="down-clues">
-        <h2 class="section-title">Down</h2>
-        <div id="down-list"></div>
+
+    <div id="status-bar">
+        <div class="status-block"><span class="status-label">⏱ Time</span><span class="status-value" id="timer-value">1:30:00</span></div>
+        <div class="status-block"><span class="status-label">★ Score</span><span class="status-value" id="score-value">0</span></div>
+        <div class="status-block"><span class="status-label">✓ Checks (this word)</span><span class="status-value" id="checks-value">0 / 3</span></div>
+        <div id="player-pill">👤 <span id="player-name-display">—</span></div>
+        <div class="spacer"></div>
+        <button class="action-btn" id="btn-check">🔍 Check Word <span style="opacity:.7;">(−3)</span></button>
+        <button class="action-btn danger" id="btn-reveal">💡 Reveal Word <span style="opacity:.7;">(−10)</span></button>
+        <button class="action-btn success" id="btn-submit">📤 Submit</button>
+        <button class="action-btn" id="btn-leaderboard">🏆 Leaderboard</button>
+    </div>
+
+    <div id="main-container">
+        <div id="grid-section">
+            <h2 class="section-title">Grid</h2>
+            <div id="crossword-grid"></div>
+            <div id="current-clue-display"></div>
+        </div>
+        <div id="across-clues">
+            <h2 class="section-title">Across</h2>
+            <div id="across-list"></div>
+        </div>
+        <div id="down-clues">
+            <h2 class="section-title">Down</h2>
+            <div id="down-list"></div>
+        </div>
     </div>
 </div>
 
@@ -216,25 +592,19 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/fireba
 import { getFirestore, collection, addDoc, getDocs, query, orderBy, limit, serverTimestamp }
     from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
 
-// Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyD4u3gYXKgRCz7GJvlJVmTyq8zeND9-91E",
-  authDomain: "crypticastrocrossword.firebaseapp.com",
-  projectId: "crypticastrocrossword",
-  storageBucket: "crypticastrocrossword.firebasestorage.app",
-  messagingSenderId: "523652682861",
-  appId: "1:523652682861:web:e58501da13cab79bf3db64"
+    apiKey: "PASTE_YOUR_API_KEY_HERE",
+    authDomain: "PASTE_YOUR_AUTH_DOMAIN_HERE",
+    projectId: "PASTE_YOUR_PROJECT_ID_HERE",
+    storageBucket: "PASTE_YOUR_STORAGE_BUCKET_HERE",
+    messagingSenderId: "PASTE_YOUR_MESSAGING_SENDER_ID_HERE",
+    appId: "PASTE_YOUR_APP_ID_HERE"
 };
 
 const app = initializeApp(firebaseConfig);
 const db  = getFirestore(app);
-
-// Expose helpers to the main script
 window.FB = { db, collection, addDoc, getDocs, query, orderBy, limit, serverTimestamp };
 
-// ─── Background pre-fetch ───────────────────────────────────────────────────
-// Start fetching the leaderboard immediately so the data is ready
-// before the user ever clicks the button.
 window._lbPrefetchPromise = (async () => {
     try {
         const q = query(collection(db, "scores"), orderBy("score", "desc"), limit(100));
@@ -243,20 +613,14 @@ window._lbPrefetchPromise = (async () => {
         snap.forEach(doc => {
             const d = doc.data();
             rows.push({
-                id: doc.id,
-                name: d.name || '?',
-                score: d.score || 0,
+                id: doc.id, name: d.name || '?', score: d.score || 0,
                 timeUsedSeconds: d.timeUsedSeconds || 0,
-                wordsCorrect: d.wordsCorrect || 0,
-                wordsRevealed: d.wordsRevealed || 0
+                wordsCorrect: d.wordsCorrect || 0, wordsRevealed: d.wordsRevealed || 0
             });
         });
         rows.sort((a, b) => b.score - a.score || a.timeUsedSeconds - b.timeUsedSeconds);
         return rows;
-    } catch (e) {
-        console.warn('LB prefetch failed:', e);
-        return null; // null = prefetch failed, will retry on demand
-    }
+    } catch (e) { console.warn('LB prefetch failed:', e); return null; }
 })();
 
 window.dispatchEvent(new Event('firebase-ready'));
@@ -405,18 +769,15 @@ let timerInterval = null;
 let gameOver = false;
 let submitted = false;
 let playerName = '';
+let gameStarted = false;   // becomes true when intro flow is finished
 
 // ============ LEADERBOARD CACHE ============
-// lbCache holds:  { rows: Array, fetchedAt: Number } | null
 let lbCache = null;
-const LB_CACHE_MAX_MS = 30 * 1000; // 30 s before a re-fetch is allowed
+const LB_CACHE_MAX_MS = 30 * 1000;
 
-// Wire up the prefetch result as soon as it resolves
-// (may happen before or after DOMContentLoaded — both cases handled)
 function acceptPrefetchResult(rows) {
-    if (!rows) return; // prefetch failed — cache stays null, demand-fetch will try again
+    if (!rows) return;
     lbCache = { rows, fetchedAt: Date.now() };
-    // Mark the button to show data is ready
     const btn = document.getElementById('btn-leaderboard');
     if (btn) btn.classList.add('lb-ready');
 }
@@ -438,7 +799,10 @@ function saveState() {
     });
     const wrongCells    = Object.keys(cells).filter(k => cells[k].classList.contains('wrong'));
     const revealedCells = Object.keys(cells).filter(k => cells[k].classList.contains('revealed'));
-    const data = { version: 1, letters, wrongCells, revealedCells, wordState, score, timeRemaining, gameOver, submitted, playerName };
+    const data = {
+        version: 1, letters, wrongCells, revealedCells, wordState,
+        score, timeRemaining, gameOver, submitted, playerName, gameStarted
+    };
     try { localStorage.setItem(CONFIG.STORAGE_KEY, JSON.stringify(data)); } catch(e) {}
 }
 function loadState() {
@@ -469,6 +833,7 @@ function loadState() {
         gameOver      = !!data.gameOver;
         submitted     = !!data.submitted;
         playerName    = data.playerName    || '';
+        gameStarted   = !!data.gameStarted;
         return true;
     } catch(e) { return false; }
 }
@@ -480,18 +845,91 @@ document.addEventListener('DOMContentLoaded', () => {
     setupToggles();
     setupActionButtons();
     setupModal();
+    setupIntroFlow();
+
     loadState();
+
+    if (gameStarted) {
+        // Returning player — skip intro
+        showGame();
+    } else {
+        // First visit — show welcome
+        const nameInput = document.getElementById('welcome-name-input');
+        if (playerName) nameInput.value = playerName;
+        validateWelcomeName();
+        setTimeout(() => nameInput.focus(), 250);
+    }
+    window.addEventListener('beforeunload', saveState);
+});
+
+// ============ INTRO FLOW ============
+function setupIntroFlow() {
+    const nameInput = document.getElementById('welcome-name-input');
+    const startBtn  = document.getElementById('welcome-start-btn');
+
+    nameInput.addEventListener('input', validateWelcomeName);
+    nameInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !startBtn.disabled) startBtn.click();
+    });
+
+    startBtn.addEventListener('click', () => {
+        playerName = nameInput.value.trim();
+        transitionScreen('screen-welcome', 'screen-instructions');
+    });
+
+    document.getElementById('instr-continue-btn').addEventListener('click', () => {
+        transitionScreen('screen-instructions', 'screen-tip');
+    });
+
+    document.getElementById('tip-start-btn').addEventListener('click', () => {
+        const tip = document.getElementById('screen-tip');
+        tip.classList.add('fade-out');
+        setTimeout(() => {
+            tip.style.display = 'none';
+            tip.classList.remove('fade-out');
+            showGame();
+        }, 400);
+    });
+}
+function validateWelcomeName() {
+    const v = document.getElementById('welcome-name-input').value.trim();
+    document.getElementById('welcome-start-btn').disabled = (v.length === 0);
+}
+function transitionScreen(fromId, toId) {
+    const from = document.getElementById(fromId);
+    const to   = document.getElementById(toId);
+    from.classList.add('fade-out');
+    setTimeout(() => {
+        from.style.display = 'none';
+        from.classList.remove('fade-out');
+        to.style.display = 'flex';
+        // Scroll the new screen content to the top
+        to.scrollTop = 0;
+    }, 400);
+}
+function showGame() {
+    // Hide any intro screens still around
+    ['screen-welcome', 'screen-instructions', 'screen-tip'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = 'none';
+    });
+    document.getElementById('game-root').style.display = 'block';
+
+    // Now wire up the game state
+    gameStarted = true;
+    if (playerName) document.getElementById('player-name-display').textContent = playerName;
     selectClue("1A");
     document.addEventListener('keydown', handleKeyDown);
     if (gameOver || submitted) {
         document.querySelectorAll('.cell input').forEach(i => i.disabled = true);
         document.getElementById('btn-submit').disabled = true;
+        updateTimerDisplay();
     } else {
         startTimer();
     }
     updateStatusBar();
-    window.addEventListener('beforeunload', saveState);
-});
+    saveState();
+}
 
 // ============ GRID ============
 function buildGrid() {
@@ -738,6 +1176,7 @@ function startTimer() {
 }
 function updateTimerDisplay() {
     const el = document.getElementById('timer-value');
+    if (!el) return;
     const h = Math.floor(timeRemaining / 3600);
     const m = Math.floor((timeRemaining % 3600) / 60);
     const s = timeRemaining % 60;
@@ -899,31 +1338,20 @@ function promptSubmit(title, leadText) {
     showModal({
         title, showCancel: true, confirmText: "Submit to Leaderboard",
         body: `${leadText}<br><br>
+            <strong>Player:</strong> ${escapeHtml(playerName)}<br>
             <strong>Final Score:</strong> ${score} / ${MAX_POSSIBLE_SCORE}<br>
             <strong>Words Solved (by you):</strong> ${correct}<br>
             <strong>Words Revealed:</strong> ${revealed}<br>
             <strong>Words Unanswered:</strong> ${left}<br>
-            <strong>Time Used:</strong> ${fmtDuration(timeUsed)}<br><br>
-            <label>Enter your name for the leaderboard:</label>
-            <input type="text" id="submit-name" maxlength="30" placeholder="Your name" value="${escapeHtml(playerName)}">`,
-        onConfirm: () => {
-            const name = (document.getElementById('submit-name')?.value || '').trim();
-            if (!name) {
-                showModal({ title: "Name required", body: "Please enter a name to submit.", confirmText: "OK", showCancel: false,
-                    onConfirm: () => promptSubmit(title, leadText) });
-                return;
-            }
-            playerName = name;
-            doSubmit(name);
-        }
+            <strong>Time Used:</strong> ${fmtDuration(timeUsed)}`,
+        onConfirm: () => doSubmit(playerName)
     });
-    setTimeout(() => { const el = document.getElementById('submit-name'); if (el) el.focus(); }, 50);
 }
 
 async function doSubmit(name) {
     if (submitted) return;
     if (!window.FB) {
-        showModal({ title: "Firebase not loaded", body: "Could not reach the leaderboard service. Check your connection and try again.", confirmText: "OK", showCancel: false, onConfirm: () => {} });
+        showModal({ title: "Firebase not loaded", body: "Could not reach the leaderboard service.", confirmText: "OK", showCancel: false, onConfirm: () => {} });
         return;
     }
     const { correct, revealed, timeUsed } = getStats();
@@ -932,7 +1360,6 @@ async function doSubmit(name) {
     document.querySelectorAll('.cell input').forEach(i => i.disabled = true);
     saveState(); updateStatusBar();
 
-    // Show "uploading" state immediately
     showModal({ title: "📤 Submitting…", body: "Uploading your score…", confirmText: "Please wait…", showCancel: false, onConfirm: () => {} });
     document.getElementById('modal-confirm').disabled = true;
 
@@ -945,13 +1372,8 @@ async function doSubmit(name) {
             wordsRevealed: revealed,
             submittedAt: serverTimestamp()
         });
-
-        // Invalidate cache so leaderboard shows this new entry
         lbCache = null;
-
-        // ── Automatically open the leaderboard (no extra click needed) ──
         showLeaderboard(true);
-
     } catch (err) {
         console.error(err);
         showModal({ title: "Submission failed",
@@ -961,30 +1383,15 @@ async function doSubmit(name) {
 }
 
 // ============ LEADERBOARD ============
-// Shows the leaderboard modal. If cached data is fresh enough, renders instantly.
-// Otherwise shows a spinner and fetches, then renders.
 async function showLeaderboard(forceRefresh = false) {
     const now = Date.now();
     const cacheOk = !forceRefresh && lbCache && (now - lbCache.fetchedAt) < LB_CACHE_MAX_MS;
-
-    if (cacheOk) {
-        // Data already in memory — render with zero network wait
-        renderLeaderboardModal(lbCache.rows, false);
-        return;
-    }
-
-    // Show the modal immediately with a spinner so the UI is responsive
-    showModal({
-        title: "🏆 Leaderboard",
-        body: `<div class="lb-spinner">⏳</div>`,
-        confirmText: "Close", showCancel: false, onConfirm: () => {}
-    });
-
+    if (cacheOk) { renderLeaderboardModal(lbCache.rows, false); return; }
+    showModal({ title: "🏆 Leaderboard", body: `<div class="lb-spinner">⏳</div>`, confirmText: "Close", showCancel: false, onConfirm: () => {} });
     if (!window.FB) {
         document.getElementById('modal-body').innerHTML = `<div class="lb-empty">Firebase not loaded — check your config.</div>`;
         return;
     }
-
     try {
         const { db, collection, getDocs, query, orderBy, limit } = window.FB;
         const q = query(collection(db, "scores"), orderBy("score", "desc"), limit(100));
@@ -997,8 +1404,7 @@ async function showLeaderboard(forceRefresh = false) {
         });
         rows.sort((a, b) => b.score - a.score || a.timeUsedSeconds - b.timeUsedSeconds);
         lbCache = { rows, fetchedAt: Date.now() };
-        // Render into the already-open modal (modal is still open from the spinner above)
-        renderLeaderboardModal(rows, false, true /* already open */);
+        renderLeaderboardModal(rows, false, true);
     } catch (err) {
         console.error(err);
         if (document.getElementById('modal-backdrop').classList.contains('show')) {
@@ -1008,24 +1414,14 @@ async function showLeaderboard(forceRefresh = false) {
     }
 }
 
-// Renders leaderboard content. If alreadyOpen=true, patches the existing open modal body
-// instead of calling showModal() again (avoids a flicker / re-open).
 function renderLeaderboardModal(rows, forceRefresh, alreadyOpen = false) {
-    const ageMs   = lbCache ? Date.now() - lbCache.fetchedAt : 0;
-    const ageSecs = Math.round(ageMs / 1000);
+    const ageSecs = lbCache ? Math.round((Date.now() - lbCache.fetchedAt) / 1000) : 0;
     const ageStr  = ageSecs < 5 ? 'just now' : `${ageSecs}s ago`;
-
-    let html = `<div class="lb-meta">
-        <span>Updated ${ageStr}</span>
-        <a id="lb-refresh-btn">↻ Refresh</a>
-    </div>`;
-
+    let html = `<div class="lb-meta"><span>Updated ${ageStr}</span><a id="lb-refresh-btn">↻ Refresh</a></div>`;
     if (!rows || rows.length === 0) {
         html += `<div class="lb-empty">No scores yet — be the first!</div>`;
     } else {
-        html += `<table class="lb-table"><thead><tr>
-            <th class="lb-rank">#</th><th>Name</th><th>Score</th><th>Time Used</th><th>✓ / 💡</th>
-        </tr></thead><tbody>`;
+        html += `<table class="lb-table"><thead><tr><th class="lb-rank">#</th><th>Name</th><th>Score</th><th>Time Used</th><th>✓ / 💡</th></tr></thead><tbody>`;
         rows.forEach((r, i) => {
             const isMe = submitted && r.name === playerName;
             html += `<tr class="${isMe ? 'me' : ''}">
@@ -1038,33 +1434,25 @@ function renderLeaderboardModal(rows, forceRefresh, alreadyOpen = false) {
         });
         html += `</tbody></table>`;
     }
-
     if (alreadyOpen) {
-        // Patch open modal in-place — no flicker
         document.getElementById('modal-title').textContent = '🏆 Leaderboard';
         document.getElementById('modal-body').innerHTML = html;
         document.getElementById('modal-cancel').style.display = 'none';
         const confirmBtn = document.getElementById('modal-confirm');
-        confirmBtn.textContent = 'Close';
-        confirmBtn.disabled = false;
-        // Re-bind confirm since alreadyOpen path skips showModal()
+        confirmBtn.textContent = 'Close'; confirmBtn.disabled = false;
         if (modalConfirmHandler) confirmBtn.removeEventListener('click', modalConfirmHandler);
         modalConfirmHandler = () => hideModal();
         confirmBtn.addEventListener('click', modalConfirmHandler);
     } else {
         showModal({ title: "🏆 Leaderboard", body: html, confirmText: "Close", showCancel: false, onConfirm: () => {} });
     }
-
-    // Wire the refresh link regardless of path
     setTimeout(() => {
         const btn = document.getElementById('lb-refresh-btn');
         if (btn) btn.addEventListener('click', () => { lbCache = null; showLeaderboard(true); });
     }, 0);
 }
 
-function escapeHtml(s) {
-    return String(s).replace(/[&<>"']/g, m => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m]));
-}
+function escapeHtml(s) { return String(s).replace(/[&<>"']/g, m => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m])); }
 
 // ============ MODAL ============
 function setupModal() {
