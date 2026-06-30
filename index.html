@@ -77,6 +77,10 @@ body.dark .toggle-switch input:checked + .slider { background: #6366f1; }
 .action-btn.success:hover:not(:disabled) { filter: brightness(1.08); }
 .spacer { flex: 1; }
 
+/* Leaderboard button state */
+#btn-leaderboard.lb-ready { border-color: var(--accent); color: var(--accent); }
+#btn-leaderboard.lb-loading { opacity: 0.7; }
+
 #main-container { display: grid; grid-template-columns: auto minmax(0, 1fr) minmax(0, 1fr); gap: 20px; width: 100%; padding: 18px 16px; align-items: start; }
 .section-title { font-size: 0.82rem; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; color: var(--accent); margin-bottom: 10px; }
 
@@ -119,9 +123,10 @@ body.show-fodder .seg-fodder { color: var(--seg-fodder); font-weight: 500; }
 body.show-indicator .seg-indicator { color: var(--seg-indicator); font-style: italic; font-weight: 500; }
 .seg-aux { color: inherit; font-style: normal; }
 
+/* ── Modal ── */
 #modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.45); display: none; align-items: center; justify-content: center; z-index: 300; backdrop-filter: blur(2px); }
 #modal-backdrop.show { display: flex; }
-.modal-box { background: var(--bg-elev); border-radius: 14px; padding: 24px 28px; max-width: 520px; width: calc(100% - 32px); box-shadow: 0 20px 60px rgba(0,0,0,0.25); border: 1px solid var(--border); max-height: 85vh; overflow-y: auto; }
+.modal-box { background: var(--bg-elev); border-radius: 14px; padding: 24px 28px; max-width: 560px; width: calc(100% - 32px); box-shadow: 0 20px 60px rgba(0,0,0,0.25); border: 1px solid var(--border); max-height: 85vh; overflow-y: auto; }
 .modal-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 10px; color: var(--text); }
 .modal-body { font-size: 0.95rem; color: var(--text-soft); line-height: 1.5; margin-bottom: 18px; }
 .modal-body strong { color: var(--text); }
@@ -129,16 +134,18 @@ body.show-indicator .seg-indicator { color: var(--seg-indicator); font-style: it
 .modal-body input[type=text]:focus { outline: none; border-color: var(--accent); }
 .modal-actions { display: flex; justify-content: flex-end; gap: 10px; }
 
-/* Leaderboard */
-#leaderboard-modal .modal-box { max-width: 640px; }
-.lb-table { width: 100%; border-collapse: collapse; margin-top: 6px; font-size: 0.92rem; }
+/* ── Leaderboard table ── */
+.lb-meta { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; font-size: 0.8rem; color: var(--text-muted); }
+.lb-meta a { color: var(--accent); text-decoration: underline; cursor: pointer; }
+.lb-table { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
 .lb-table th { text-align: left; padding: 8px 10px; font-size: 0.74rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); border-bottom: 1px solid var(--border); font-weight: 700; }
 .lb-table td { padding: 9px 10px; border-bottom: 1px solid var(--border); }
 .lb-table tr.me { background: var(--accent-soft); font-weight: 600; }
 .lb-rank { width: 36px; color: var(--accent); font-weight: 700; }
 .lb-score { font-variant-numeric: tabular-nums; font-weight: 600; }
 .lb-time { font-variant-numeric: tabular-nums; color: var(--text-muted); font-size: 0.88rem; }
-.lb-empty { text-align: center; padding: 24px; color: var(--text-muted); font-style: italic; }
+.lb-empty { text-align: center; padding: 32px 16px; color: var(--text-muted); font-style: italic; }
+.lb-spinner { text-align: center; padding: 32px; font-size: 1.5rem; }
 
 @media (max-width: 1100px) { #main-container { grid-template-columns: auto 1fr; } #down-clues { grid-column: 1 / -1; } }
 @media (max-width: 820px) { #main-container { grid-template-columns: 1fr; justify-items: center; } #across-clues, #down-clues { width: 100%; max-width: 640px; } #crossword-grid { grid-template-columns: repeat(11, 36px); grid-template-rows: repeat(11, 36px); width: calc(36px * 11 + 6px); } .cell { width: 36px; height: 36px; } .cell input { font-size: 1rem; } #current-clue-display { width: calc(36px * 11 + 6px); } }
@@ -203,14 +210,12 @@ body.show-indicator .seg-indicator { color: var(--seg-indicator); font-style: it
     </div>
 </div>
 
-<!-- Firebase v10 modular SDK via ES modules from CDN -->
+<!-- Firebase v10 modular SDK -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, query, orderBy, limit, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
+import { getFirestore, collection, addDoc, getDocs, query, orderBy, limit, serverTimestamp }
+    from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
 
-// =====================================================================
-// 🔥 PASTE YOUR FIREBASE CONFIG HERE (from Step 1.3)
-// =====================================================================
 const firebaseConfig = {
     apiKey: "PASTE_YOUR_API_KEY_HERE",
     authDomain: "PASTE_YOUR_AUTH_DOMAIN_HERE",
@@ -219,20 +224,38 @@ const firebaseConfig = {
     messagingSenderId: "PASTE_YOUR_MESSAGING_SENDER_ID_HERE",
     appId: "PASTE_YOUR_APP_ID_HERE"
 };
-// =====================================================================
 
 const app = initializeApp(firebaseConfig);
 const db  = getFirestore(app);
 
-// Expose to non-module code below
+// Expose helpers to the main script
 window.FB = { db, collection, addDoc, getDocs, query, orderBy, limit, serverTimestamp };
 
-// 🔥 Warm-up: kick off a tiny query immediately so the SDK connects in the background.
-// By the time the user clicks "Leaderboard", the network handshake is already done.
-(async () => {
+// ─── Background pre-fetch ───────────────────────────────────────────────────
+// Start fetching the leaderboard immediately so the data is ready
+// before the user ever clicks the button.
+window._lbPrefetchPromise = (async () => {
     try {
-        await getDocs(query(collection(db, "scores"), limit(1)));
-    } catch (e) { /* ignore warm-up failures */ }
+        const q = query(collection(db, "scores"), orderBy("score", "desc"), limit(100));
+        const snap = await getDocs(q);
+        const rows = [];
+        snap.forEach(doc => {
+            const d = doc.data();
+            rows.push({
+                id: doc.id,
+                name: d.name || '?',
+                score: d.score || 0,
+                timeUsedSeconds: d.timeUsedSeconds || 0,
+                wordsCorrect: d.wordsCorrect || 0,
+                wordsRevealed: d.wordsRevealed || 0
+            });
+        });
+        rows.sort((a, b) => b.score - a.score || a.timeUsedSeconds - b.timeUsedSeconds);
+        return rows;
+    } catch (e) {
+        console.warn('LB prefetch failed:', e);
+        return null; // null = prefetch failed, will retry on demand
+    }
 })();
 
 window.dispatchEvent(new Event('firebase-ready'));
@@ -355,7 +378,7 @@ const CLUE_CELLS = {
     "12D":[{row:8,col:1},{row:9,col:1},{row:10,col:1}],
 };
 const ACROSS_CLUE_ORDER = ["1A","4A","6A","8A","11A","13A","14A"];
-const DOWN_CLUE_ORDER = ["1D","2D","3D","4D","5D","7D","8D","9D","10D","12D"];
+const DOWN_CLUE_ORDER   = ["1D","2D","3D","4D","5D","7D","8D","9D","10D","12D"];
 
 const CONFIG = {
     INITIAL_TIME_SECONDS: 90 * 60,
@@ -382,27 +405,39 @@ let gameOver = false;
 let submitted = false;
 let playerName = '';
 
+// ============ LEADERBOARD CACHE ============
+// lbCache holds:  { rows: Array, fetchedAt: Number } | null
+let lbCache = null;
+const LB_CACHE_MAX_MS = 30 * 1000; // 30 s before a re-fetch is allowed
+
+// Wire up the prefetch result as soon as it resolves
+// (may happen before or after DOMContentLoaded — both cases handled)
+function acceptPrefetchResult(rows) {
+    if (!rows) return; // prefetch failed — cache stays null, demand-fetch will try again
+    lbCache = { rows, fetchedAt: Date.now() };
+    // Mark the button to show data is ready
+    const btn = document.getElementById('btn-leaderboard');
+    if (btn) btn.classList.add('lb-ready');
+}
+if (window._lbPrefetchPromise) {
+    window._lbPrefetchPromise.then(acceptPrefetchResult);
+} else {
+    window.addEventListener('firebase-ready', () => {
+        if (window._lbPrefetchPromise) window._lbPrefetchPromise.then(acceptPrefetchResult);
+    });
+}
+
 // ============ PERSISTENCE ============
 function saveState() {
-    if (submitted) return; // don't overwrite a submitted state
+    if (submitted) return;
     const letters = {};
     Object.keys(cells).forEach(key => {
         const inp = cells[key].querySelector('input');
         if (inp && inp.value) letters[key] = inp.value;
     });
-    const wrongCells = [];
-    Object.keys(cells).forEach(key => {
-        if (cells[key].classList.contains('wrong')) wrongCells.push(key);
-    });
-    const revealedCells = [];
-    Object.keys(cells).forEach(key => {
-        if (cells[key].classList.contains('revealed')) revealedCells.push(key);
-    });
-    const data = {
-        version: 1,
-        letters, wrongCells, revealedCells,
-        wordState, score, timeRemaining, gameOver, submitted, playerName
-    };
+    const wrongCells    = Object.keys(cells).filter(k => cells[k].classList.contains('wrong'));
+    const revealedCells = Object.keys(cells).filter(k => cells[k].classList.contains('revealed'));
+    const data = { version: 1, letters, wrongCells, revealedCells, wordState, score, timeRemaining, gameOver, submitted, playerName };
     try { localStorage.setItem(CONFIG.STORAGE_KEY, JSON.stringify(data)); } catch(e) {}
 }
 function loadState() {
@@ -411,22 +446,16 @@ function loadState() {
         if (!raw) return false;
         const data = JSON.parse(raw);
         if (data.version !== 1) return false;
-
-        // Restore letters
         Object.keys(data.letters || {}).forEach(key => {
             const inp = cells[key] && cells[key].querySelector('input');
             if (inp) inp.value = data.letters[key];
         });
-        // Restore wrong / revealed cell classes
-        (data.wrongCells || []).forEach(key => cells[key] && cells[key].classList.add('wrong'));
+        (data.wrongCells    || []).forEach(key => cells[key] && cells[key].classList.add('wrong'));
         (data.revealedCells || []).forEach(key => cells[key] && cells[key].classList.add('revealed'));
-
-        // Restore word state
         if (data.wordState) {
             Object.keys(data.wordState).forEach(id => {
                 if (wordState[id]) wordState[id] = data.wordState[id];
             });
-            // Re-mark solved clue items
             Object.keys(wordState).forEach(id => {
                 if (wordState[id].awarded || wordState[id].revealed) {
                     const el = document.querySelector(`.clue-item[data-clue-id="${id}"]`);
@@ -434,12 +463,11 @@ function loadState() {
                 }
             });
         }
-
-        score = data.score || 0;
+        score         = data.score         || 0;
         timeRemaining = (typeof data.timeRemaining === 'number') ? data.timeRemaining : CONFIG.INITIAL_TIME_SECONDS;
-        gameOver = !!data.gameOver;
-        submitted = !!data.submitted;
-        playerName = data.playerName || '';
+        gameOver      = !!data.gameOver;
+        submitted     = !!data.submitted;
+        playerName    = data.playerName    || '';
         return true;
     } catch(e) { return false; }
 }
@@ -454,21 +482,17 @@ document.addEventListener('DOMContentLoaded', () => {
     loadState();
     selectClue("1A");
     document.addEventListener('keydown', handleKeyDown);
-    if (gameOver) {
+    if (gameOver || submitted) {
         document.querySelectorAll('.cell input').forEach(i => i.disabled = true);
+        document.getElementById('btn-submit').disabled = true;
     } else {
         startTimer();
     }
     updateStatusBar();
-    if (submitted) {
-        // If already submitted, lock the game
-        document.querySelectorAll('.cell input').forEach(i => i.disabled = true);
-        document.getElementById('btn-submit').disabled = true;
-    }
-    // Save on unload
     window.addEventListener('beforeunload', saveState);
 });
 
+// ============ GRID ============
 function buildGrid() {
     const gridEl = document.getElementById('crossword-grid');
     for (let r = 0; r < GRID_SIZE; r++) {
@@ -476,9 +500,9 @@ function buildGrid() {
             const cellDiv = document.createElement('div');
             cellDiv.className = 'cell';
             cellDiv.dataset.row = r; cellDiv.dataset.col = c;
-            const letter = SOLUTION[r][c];
-            if (letter === '#') { cellDiv.classList.add('black'); }
-            else {
+            if (SOLUTION[r][c] === '#') {
+                cellDiv.classList.add('black');
+            } else {
                 const input = document.createElement('input');
                 input.type = 'text'; input.maxLength = 1;
                 input.dataset.row = r; input.dataset.col = c;
@@ -497,7 +521,7 @@ function buildGrid() {
             BARS.forEach(bar => {
                 if (bar.row === r && bar.col === c) {
                     if (bar.side === 'right') cellDiv.classList.add('bar-right');
-                    if (bar.side === 'left') cellDiv.classList.add('bar-left');
+                    if (bar.side === 'left')  cellDiv.classList.add('bar-left');
                 }
             });
             gridEl.appendChild(cellDiv);
@@ -506,16 +530,17 @@ function buildGrid() {
     }
 }
 
+// ============ CLUE RENDERING ============
 function renderClues() {
     const acrossList = document.getElementById('across-list');
-    const downList = document.getElementById('down-list');
+    const downList   = document.getElementById('down-list');
     ACROSS_CLUE_ORDER.forEach(id => acrossList.appendChild(createClueElement(id, CLUE_ANNOTATIONS[id])));
-    DOWN_CLUE_ORDER.forEach(id => downList.appendChild(createClueElement(id, CLUE_ANNOTATIONS[id])));
+    DOWN_CLUE_ORDER.forEach(id   => downList.appendChild(createClueElement(id, CLUE_ANNOTATIONS[id])));
 }
 function createClueElement(id, clue) {
     const div = document.createElement('div');
     div.className = 'clue-item'; div.dataset.clueId = id;
-    const numSpan = document.createElement('span');
+    const numSpan  = document.createElement('span');
     numSpan.className = 'clue-number'; numSpan.textContent = clue.number;
     const textSpan = document.createElement('span');
     textSpan.className = 'clue-text';
@@ -538,6 +563,7 @@ function getClueLabel(id) {
     return clue.number + ' ' + (clue.direction === 'across' ? 'Across' : 'Down');
 }
 
+// ============ INPUT / NAVIGATION ============
 function handleCellClick(e, row, col) {
     e.preventDefault();
     if (SOLUTION[row][col] === '#' || gameOver) return;
@@ -547,7 +573,7 @@ function handleCellClick(e, row, col) {
         if (clueId) { currentRow = row; currentCol = col; currentClueId = clueId; currentDirection = clueId.endsWith('A') ? 'across' : 'down'; }
         else {
             const otherDir = currentDirection === 'across' ? 'down' : 'across';
-            const otherId = findClueForCell(row, col, otherDir);
+            const otherId  = findClueForCell(row, col, otherDir);
             if (otherId) { currentRow = row; currentCol = col; currentClueId = otherId; currentDirection = otherDir; }
         }
     }
@@ -555,11 +581,10 @@ function handleCellClick(e, row, col) {
 }
 function toggleDirection(row, col) {
     const otherDir = currentDirection === 'across' ? 'down' : 'across';
-    const otherId = findClueForCell(row, col, otherDir);
+    const otherId  = findClueForCell(row, col, otherDir);
     if (otherId) { currentDirection = otherDir; currentClueId = otherId; }
     updateHighlighting();
 }
-
 function handleInput(e, row, col) {
     if (gameOver) return;
     const input = e.target;
@@ -576,91 +601,80 @@ function handleKeyDown(e) {
     if (currentRow === null || currentCol === null || gameOver) return;
     if (document.getElementById('modal-backdrop').classList.contains('show')) return;
     switch (e.key) {
-        case 'Tab': e.preventDefault(); moveToNextClue(e.shiftKey); break;
-        case 'ArrowRight': e.preventDefault(); moveInDirection(0, 1); break;
-        case 'ArrowLeft':  e.preventDefault(); moveInDirection(0, -1); break;
-        case 'ArrowDown':  e.preventDefault(); moveInDirection(1, 0); break;
-        case 'ArrowUp':    e.preventDefault(); moveInDirection(-1, 0); break;
-        case 'Backspace':  e.preventDefault(); handleBackspace(); break;
-        case 'Delete':     e.preventDefault(); clearCurrentCell(); break;
-        case ' ':          e.preventDefault(); toggleDirection(currentRow, currentCol); focusCell(currentRow, currentCol); break;
+        case 'Tab':       e.preventDefault(); moveToNextClue(e.shiftKey); break;
+        case 'ArrowRight':e.preventDefault(); moveInDirection(0,  1); break;
+        case 'ArrowLeft': e.preventDefault(); moveInDirection(0, -1); break;
+        case 'ArrowDown': e.preventDefault(); moveInDirection( 1, 0); break;
+        case 'ArrowUp':   e.preventDefault(); moveInDirection(-1, 0); break;
+        case 'Backspace': e.preventDefault(); handleBackspace(); break;
+        case 'Delete':    e.preventDefault(); clearCurrentCell(); break;
+        case ' ':         e.preventDefault(); toggleDirection(currentRow, currentCol); focusCell(currentRow, currentCol); break;
     }
 }
 function handleBackspace() {
     const input = getCellInput(currentRow, currentCol);
-    const cell = cells[`${currentRow}-${currentCol}`];
+    const cell  = cells[`${currentRow}-${currentCol}`];
     if (cell) cell.classList.remove('wrong');
     if (input && input.value) { input.value = ''; }
     else {
         moveToPrevCell();
-        const p = getCellInput(currentRow, currentCol);
+        const p  = getCellInput(currentRow, currentCol);
         const pc = cells[`${currentRow}-${currentCol}`];
         if (pc) pc.classList.remove('wrong');
-        if (p) p.value = '';
+        if (p)  p.value = '';
     }
     saveState();
 }
 function clearCurrentCell() {
     const input = getCellInput(currentRow, currentCol);
-    const cell = cells[`${currentRow}-${currentCol}`];
-    if (cell) cell.classList.remove('wrong');
+    const cell  = cells[`${currentRow}-${currentCol}`];
+    if (cell)  cell.classList.remove('wrong');
     if (input) input.value = '';
     saveState();
 }
-
 function moveToNextCell() {
     if (!currentClueId) return;
-    const clueCells = CLUE_CELLS[currentClueId]; if (!clueCells) return;
-    const idx = clueCells.findIndex(c => c.row === currentRow && c.col === currentCol);
-    if (idx < clueCells.length - 1) {
-        const n = clueCells[idx + 1];
-        currentRow = n.row; currentCol = n.col;
-        updateHighlighting(); focusCell(currentRow, currentCol);
-    }
+    const cc = CLUE_CELLS[currentClueId]; if (!cc) return;
+    const idx = cc.findIndex(c => c.row === currentRow && c.col === currentCol);
+    if (idx < cc.length - 1) { const n = cc[idx+1]; currentRow = n.row; currentCol = n.col; updateHighlighting(); focusCell(currentRow, currentCol); }
 }
 function moveToPrevCell() {
     if (!currentClueId) return;
-    const clueCells = CLUE_CELLS[currentClueId]; if (!clueCells) return;
-    const idx = clueCells.findIndex(c => c.row === currentRow && c.col === currentCol);
-    if (idx > 0) {
-        const p = clueCells[idx - 1];
-        currentRow = p.row; currentCol = p.col;
-        updateHighlighting(); focusCell(currentRow, currentCol);
-    }
+    const cc = CLUE_CELLS[currentClueId]; if (!cc) return;
+    const idx = cc.findIndex(c => c.row === currentRow && c.col === currentCol);
+    if (idx > 0) { const p = cc[idx-1]; currentRow = p.row; currentCol = p.col; updateHighlighting(); focusCell(currentRow, currentCol); }
 }
 function moveInDirection(dRow, dCol) {
-    let newRow = currentRow + dRow, newCol = currentCol + dCol;
-    while (newRow >= 0 && newRow < GRID_SIZE && newCol >= 0 && newCol < GRID_SIZE) {
-        if (SOLUTION[newRow][newCol] !== '#') {
-            currentRow = newRow; currentCol = newCol;
+    let nRow = currentRow + dRow, nCol = currentCol + dCol;
+    while (nRow >= 0 && nRow < GRID_SIZE && nCol >= 0 && nCol < GRID_SIZE) {
+        if (SOLUTION[nRow][nCol] !== '#') {
+            currentRow = nRow; currentCol = nCol;
             if (dRow !== 0 && dCol === 0) currentDirection = 'down';
             else if (dCol !== 0 && dRow === 0) currentDirection = 'across';
             const clueId = findClueForCell(currentRow, currentCol, currentDirection);
             if (clueId) currentClueId = clueId;
             else {
                 const otherDir = currentDirection === 'across' ? 'down' : 'across';
-                const otherId = findClueForCell(currentRow, currentCol, otherDir);
+                const otherId  = findClueForCell(currentRow, currentCol, otherDir);
                 if (otherId) { currentClueId = otherId; currentDirection = otherDir; }
             }
-            updateHighlighting(); focusCell(currentRow, currentCol);
-            return;
+            updateHighlighting(); focusCell(currentRow, currentCol); return;
         }
-        newRow += dRow; newCol += dCol;
+        nRow += dRow; nCol += dCol;
     }
 }
 function moveToNextClue(reverse) {
     if (!currentClueId) return;
     const isAcross = currentClueId.endsWith('A');
     const list = isAcross ? ACROSS_CLUE_ORDER : DOWN_CLUE_ORDER;
-    const idx = list.indexOf(currentClueId);
-    const nextIdx = reverse ? (idx - 1 + list.length) % list.length : (idx + 1) % list.length;
-    selectClue(list[nextIdx]);
+    const idx  = list.indexOf(currentClueId);
+    selectClue(list[reverse ? (idx - 1 + list.length) % list.length : (idx + 1) % list.length]);
 }
 function selectClue(clueId) {
     currentClueId = clueId;
     currentDirection = clueId.endsWith('A') ? 'across' : 'down';
-    const clueCells = CLUE_CELLS[clueId];
-    if (clueCells && clueCells.length > 0) { currentRow = clueCells[0].row; currentCol = clueCells[0].col; }
+    const cc = CLUE_CELLS[clueId];
+    if (cc && cc.length > 0) { currentRow = cc[0].row; currentCol = cc[0].col; }
     updateHighlighting(); focusCell(currentRow, currentCol);
 }
 
@@ -668,15 +682,9 @@ function updateHighlighting() {
     Object.values(cells).forEach(c => c.classList.remove('highlighted', 'active'));
     document.querySelectorAll('.clue-item').forEach(el => el.classList.remove('active-clue'));
     if (!currentClueId) return;
-    const clueCells = CLUE_CELLS[currentClueId];
-    if (clueCells) clueCells.forEach(c => {
-        const cell = cells[`${c.row}-${c.col}`];
-        if (cell) cell.classList.add('highlighted');
-    });
-    if (currentRow !== null && currentCol !== null) {
-        const a = cells[`${currentRow}-${currentCol}`];
-        if (a) a.classList.add('active');
-    }
+    const cc = CLUE_CELLS[currentClueId];
+    if (cc) cc.forEach(c => { const cell = cells[`${c.row}-${c.col}`]; if (cell) cell.classList.add('highlighted'); });
+    if (currentRow !== null && currentCol !== null) { const a = cells[`${currentRow}-${currentCol}`]; if (a) a.classList.add('active'); }
     const clueEl = document.querySelector(`.clue-item[data-clue-id="${currentClueId}"]`);
     if (clueEl) clueEl.classList.add('active-clue');
     updateClueDisplay();
@@ -684,52 +692,39 @@ function updateHighlighting() {
 }
 function updateClueDisplay() {
     const display = document.getElementById('current-clue-display');
-    if (currentClueId) {
-        const clue = CLUE_ANNOTATIONS[currentClueId];
-        if (clue) {
-            const label = getClueLabel(currentClueId);
-            let text = ''; clue.segments.forEach(seg => { text += seg.text; });
-            display.innerHTML = `<strong>${label}:</strong> ${text} <span style="color:var(--text-muted)">${clue.length}</span>`;
-        }
-    } else { display.textContent = 'Click a cell to begin'; }
+    if (!currentClueId) { display.textContent = 'Click a cell to begin'; return; }
+    const clue = CLUE_ANNOTATIONS[currentClueId];
+    if (!clue) return;
+    let text = ''; clue.segments.forEach(seg => { text += seg.text; });
+    display.innerHTML = `<strong>${getClueLabel(currentClueId)}:</strong> ${text} <span style="color:var(--text-muted)">${clue.length}</span>`;
 }
 
 function findClueForCell(row, col, direction) {
     const list = direction === 'across' ? ACROSS_CLUE_ORDER : DOWN_CLUE_ORDER;
-    for (const id of list) {
-        const cc = CLUE_CELLS[id];
-        if (cc && cc.some(c => c.row === row && c.col === col)) return id;
-    }
+    for (const id of list) { const cc = CLUE_CELLS[id]; if (cc && cc.some(c => c.row === row && c.col === col)) return id; }
     return null;
 }
 function getCellInput(row, col) { const cell = cells[`${row}-${col}`]; return cell ? cell.querySelector('input') : null; }
 function focusCell(row, col) { const input = getCellInput(row, col); if (input) { input.focus(); input.select(); } }
 function getWordEntered(clueId) {
-    const list = CLUE_CELLS[clueId];
-    let s = '';
-    for (const c of list) {
-        const inp = getCellInput(c.row, c.col);
-        s += (inp && inp.value) ? inp.value.toUpperCase() : ' ';
-    }
+    const list = CLUE_CELLS[clueId]; let s = '';
+    for (const c of list) { const inp = getCellInput(c.row, c.col); s += (inp && inp.value) ? inp.value.toUpperCase() : ' '; }
     return s;
 }
-function isWordCompletelyFilled(clueId) { return !getWordEntered(clueId).includes(' '); }
 function isWordCorrect(clueId) { return getWordEntered(clueId) === CLUE_ANNOTATIONS[clueId].answer; }
 function clueIdsForCell(row, col) {
-    const ids = [];
-    Object.keys(CLUE_CELLS).forEach(id => {
-        if (CLUE_CELLS[id].some(c => c.row === row && c.col === col)) ids.push(id);
-    });
-    return ids;
+    return Object.keys(CLUE_CELLS).filter(id => CLUE_CELLS[id].some(c => c.row === row && c.col === col));
 }
 
+// ============ TOGGLES ============
 function setupToggles() {
-    document.getElementById('toggle-def').addEventListener('change', (e) => document.body.classList.toggle('show-def', e.target.checked));
-    document.getElementById('toggle-fodder').addEventListener('change', (e) => document.body.classList.toggle('show-fodder', e.target.checked));
-    document.getElementById('toggle-indicator').addEventListener('change', (e) => document.body.classList.toggle('show-indicator', e.target.checked));
-    document.getElementById('toggle-theme').addEventListener('change', (e) => document.body.classList.toggle('dark', e.target.checked));
+    document.getElementById('toggle-def').addEventListener('change', e => document.body.classList.toggle('show-def', e.target.checked));
+    document.getElementById('toggle-fodder').addEventListener('change', e => document.body.classList.toggle('show-fodder', e.target.checked));
+    document.getElementById('toggle-indicator').addEventListener('change', e => document.body.classList.toggle('show-indicator', e.target.checked));
+    document.getElementById('toggle-theme').addEventListener('change', e => document.body.classList.toggle('dark', e.target.checked));
 }
 
+// ============ TIMER ============
 function startTimer() {
     updateTimerDisplay();
     timerInterval = setInterval(() => {
@@ -737,7 +732,6 @@ function startTimer() {
         timeRemaining--;
         if (timeRemaining <= 0) { timeRemaining = 0; updateTimerDisplay(); endGameByTimeout(); return; }
         updateTimerDisplay();
-        // Save every 10s
         if (timeRemaining % 10 === 0) saveState();
     }, 1000);
 }
@@ -749,10 +743,10 @@ function updateTimerDisplay() {
     el.textContent = h > 0
         ? `${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`
         : `${m}:${String(s).padStart(2,'0')}`;
-    el.classList.remove('warning', 'danger', 'done');
-    if (timeRemaining === 0) el.classList.add('done');
-    else if (timeRemaining < 60)  el.classList.add('danger');
-    else if (timeRemaining < 300) el.classList.add('warning');
+    el.classList.remove('warning','danger','done');
+    if      (timeRemaining === 0)  el.classList.add('done');
+    else if (timeRemaining < 60)   el.classList.add('danger');
+    else if (timeRemaining < 300)  el.classList.add('warning');
 }
 function endGameByTimeout() {
     gameOver = true;
@@ -762,11 +756,12 @@ function endGameByTimeout() {
     promptSubmit("⏱ Time's up!", "Your time has run out. Submit your score to the leaderboard?");
 }
 
+// ============ STATUS BAR ============
 function updateStatusBar() {
     document.getElementById('score-value').textContent = score;
-    const ws = currentClueId ? wordState[currentClueId] : null;
-    const checksEl = document.getElementById('checks-value');
-    const btnCheck = document.getElementById('btn-check');
+    const ws      = currentClueId ? wordState[currentClueId] : null;
+    const checksEl  = document.getElementById('checks-value');
+    const btnCheck  = document.getElementById('btn-check');
     const btnReveal = document.getElementById('btn-reveal');
     const btnSubmit = document.getElementById('btn-submit');
     if (!currentClueId || !ws) {
@@ -774,18 +769,18 @@ function updateStatusBar() {
         btnCheck.disabled = true; btnReveal.disabled = true;
     } else {
         checksEl.textContent = `${ws.checksUsed} / ${CONFIG.MAX_CHECKS_PER_WORD}`;
-        if (ws.revealed || submitted) { btnCheck.disabled = true; btnReveal.disabled = true; }
-        else { btnCheck.disabled = false; btnReveal.disabled = false; }
+        btnCheck.disabled  = ws.revealed || submitted || gameOver;
+        btnReveal.disabled = ws.revealed || submitted || gameOver;
     }
     btnSubmit.disabled = submitted;
 }
 
+// ============ WORD CHECKING / AWARDING ============
 function checkWordsAtCell(row, col) {
-    const ids = clueIdsForCell(row, col);
-    ids.forEach(id => {
+    clueIdsForCell(row, col).forEach(id => {
         const ws = wordState[id];
         if (ws.awarded || ws.revealed) return;
-        if (isWordCompletelyFilled(id) && isWordCorrect(id)) awardCorrectWord(id, true);
+        if (isWordCorrect(id)) awardCorrectWord(id, true);
     });
 }
 function awardCorrectWord(clueId, flash) {
@@ -798,71 +793,54 @@ function awardCorrectWord(clueId, flash) {
     if (flash) {
         CLUE_CELLS[clueId].forEach(c => {
             const cell = cells[`${c.row}-${c.col}`];
-            if (cell) {
-                cell.classList.remove('flash-correct');
-                void cell.offsetWidth;
-                cell.classList.add('flash-correct');
-                setTimeout(() => cell.classList.remove('flash-correct'), 1200);
-            }
+            if (cell) { cell.classList.remove('flash-correct'); void cell.offsetWidth; cell.classList.add('flash-correct'); setTimeout(() => cell.classList.remove('flash-correct'), 1200); }
         });
         showCorrectFlash();
     }
-    updateStatusBar();
-    saveState();
+    updateStatusBar(); saveState();
     checkAllSolved();
 }
 function showCorrectFlash() {
     const f = document.getElementById('correct-flash');
-    f.classList.add('show');
-    setTimeout(() => f.classList.remove('show'), 800);
+    f.classList.add('show'); setTimeout(() => f.classList.remove('show'), 800);
 }
 function checkAllSolved() {
     const allDone = Object.keys(CLUE_ANNOTATIONS).every(id => wordState[id].awarded || wordState[id].revealed);
     if (allDone && !gameOver) {
-        gameOver = true;
-        clearInterval(timerInterval);
-        saveState();
-        setTimeout(() => {
-            promptSubmit("🎉 Puzzle complete!", "You filled in (or revealed) every word. Submit your score to the leaderboard?");
-        }, 1100);
+        gameOver = true; clearInterval(timerInterval); saveState();
+        setTimeout(() => promptSubmit("🎉 Puzzle complete!", "You filled in every word. Submit your score to the leaderboard?"), 1100);
     }
 }
 
+// ============ ACTION BUTTONS ============
 function setupActionButtons() {
     document.getElementById('btn-check').addEventListener('click', onCheckClicked);
     document.getElementById('btn-reveal').addEventListener('click', onRevealClicked);
     document.getElementById('btn-submit').addEventListener('click', onSubmitClicked);
-    document.getElementById('btn-leaderboard').addEventListener('click', showLeaderboard);
+    document.getElementById('btn-leaderboard').addEventListener('click', () => showLeaderboard(false));
 }
+
 function onCheckClicked() {
     if (!currentClueId || gameOver || submitted) return;
     const ws = wordState[currentClueId];
     if (ws.revealed) return;
     if (ws.checksUsed >= CONFIG.MAX_CHECKS_PER_WORD) {
-        showModal({
-            title: "🚨 Max checks reached",
-            body: `You've used all <strong>${CONFIG.MAX_CHECKS_PER_WORD}</strong> checks on this word. Checking again will <strong>reveal</strong> the word instead.<br><br>Your previous check costs (${ws.checksUsed * CONFIG.CHECK_COST} pts) will be refunded, and a single reveal cost (−${CONFIG.REVEAL_COST}) will apply.`,
-            confirmText: "Reveal Word", showCancel: true,
-            onConfirm: () => performReveal(currentClueId, true)
-        });
+        showModal({ title: "🚨 Max checks reached",
+            body: `You've used all <strong>${CONFIG.MAX_CHECKS_PER_WORD}</strong> checks on this word. Checking again will <strong>reveal</strong> it instead.<br><br>Previous check costs (${ws.checksUsed * CONFIG.CHECK_COST} pts) will be refunded; a reveal cost (−${CONFIG.REVEAL_COST}) will apply.`,
+            confirmText: "Reveal Word", showCancel: true, onConfirm: () => performReveal(currentClueId, true) });
         return;
     }
-    showModal({
-        title: "🔍 Check this word?",
-        body: `Wrong letters will be <strong style="color:var(--red)">struck through in red</strong>. This costs <strong>−${CONFIG.CHECK_COST}</strong> points.<br><br>Checks used on this word: <strong>${ws.checksUsed} / ${CONFIG.MAX_CHECKS_PER_WORD}</strong>`,
-        confirmText: "Check", showCancel: true,
-        onConfirm: () => performCheck(currentClueId)
-    });
+    showModal({ title: "🔍 Check this word?",
+        body: `Wrong letters will be <strong style="color:var(--red)">struck through in red</strong>. This costs <strong>−${CONFIG.CHECK_COST}</strong> points.<br><br>Checks used: <strong>${ws.checksUsed} / ${CONFIG.MAX_CHECKS_PER_WORD}</strong>`,
+        confirmText: "Check", showCancel: true, onConfirm: () => performCheck(currentClueId) });
 }
 function performCheck(clueId) {
     const ws = wordState[clueId];
-    if (ws.revealed) return;
-    if (ws.checksUsed >= CONFIG.MAX_CHECKS_PER_WORD) return;
+    if (ws.revealed || ws.checksUsed >= CONFIG.MAX_CHECKS_PER_WORD) return;
     ws.checksUsed++; score -= CONFIG.CHECK_COST;
-    const list = CLUE_CELLS[clueId];
     const ans = CLUE_ANNOTATIONS[clueId].answer;
-    list.forEach((c, idx) => {
-        const inp = getCellInput(c.row, c.col);
+    CLUE_CELLS[clueId].forEach((c, idx) => {
+        const inp  = getCellInput(c.row, c.col);
         const cell = cells[`${c.row}-${c.col}`];
         const v = (inp && inp.value) ? inp.value.toUpperCase() : '';
         if (v && v !== ans[idx]) cell.classList.add('wrong');
@@ -874,35 +852,26 @@ function onRevealClicked() {
     if (!currentClueId || gameOver || submitted) return;
     const ws = wordState[currentClueId];
     if (ws.revealed) return;
-    const refund = ws.checksUsed * CONFIG.CHECK_COST;
-    const refundMsg = refund > 0
-        ? `<br><br>You've used <strong>${ws.checksUsed}</strong> check(s) on this word. Those <strong>${refund}</strong> points will be refunded.`
-        : '';
-    showModal({
-        title: "💡 Reveal this word?",
-        body: `The full answer will be filled in. This costs <strong>−${CONFIG.REVEAL_COST}</strong> points (a net of <strong>0</strong> after the word's +${CONFIG.POINTS_PER_WORD} is credited).${refundMsg}`,
-        confirmText: "Reveal", showCancel: true,
-        onConfirm: () => performReveal(currentClueId, true)
-    });
+    const refund    = ws.checksUsed * CONFIG.CHECK_COST;
+    const refundMsg = refund > 0 ? `<br><br>You've used <strong>${ws.checksUsed}</strong> check(s) on this word — those <strong>${refund}</strong> points will be refunded.` : '';
+    showModal({ title: "💡 Reveal this word?",
+        body: `The full answer will be filled in. Costs <strong>−${CONFIG.REVEAL_COST}</strong> points (net 0 after the word's +${CONFIG.POINTS_PER_WORD} is credited).${refundMsg}`,
+        confirmText: "Reveal", showCancel: true, onConfirm: () => performReveal(currentClueId, true) });
 }
 function performReveal(clueId, refundChecks) {
     const ws = wordState[clueId];
     if (ws.revealed) return;
-    if (refundChecks && ws.checksUsed > 0) {
-        score += ws.checksUsed * CONFIG.CHECK_COST;
-        ws.checksUsed = 0;
-    }
+    if (refundChecks && ws.checksUsed > 0) { score += ws.checksUsed * CONFIG.CHECK_COST; ws.checksUsed = 0; }
     score -= CONFIG.REVEAL_COST;
-    const list = CLUE_CELLS[clueId];
     const ans = CLUE_ANNOTATIONS[clueId].answer;
-    list.forEach((c, idx) => {
-        const inp = getCellInput(c.row, c.col);
+    CLUE_CELLS[clueId].forEach((c, idx) => {
+        const inp  = getCellInput(c.row, c.col);
         const cell = cells[`${c.row}-${c.col}`];
         if (inp) { inp.value = ans[idx]; cell.classList.remove('wrong'); cell.classList.add('revealed'); }
     });
     ws.revealed = true;
     if (!ws.awarded) awardCorrectWord(clueId, false);
-    list.forEach(c => checkWordsAtCell(c.row, c.col));
+    CLUE_CELLS[clueId].forEach(c => checkWordsAtCell(c.row, c.col));
     updateStatusBar(); saveState();
 }
 
@@ -913,51 +882,41 @@ function getStats() {
         if (wordState[id].revealed) revealed++;
         else if (wordState[id].awarded) correct++;
     });
-    const left = TOTAL_WORDS - correct - revealed;
-    const timeUsed = CONFIG.INITIAL_TIME_SECONDS - timeRemaining;
-    return { correct, revealed, left, timeUsed };
+    return { correct, revealed, left: TOTAL_WORDS - correct - revealed, timeUsed: CONFIG.INITIAL_TIME_SECONDS - timeRemaining };
 }
 function fmtDuration(secs) {
-    const h = Math.floor(secs / 3600);
-    const m = Math.floor((secs % 3600) / 60);
-    const s = secs % 60;
+    const h = Math.floor(secs / 3600), m = Math.floor((secs % 3600) / 60), s = secs % 60;
     return h > 0 ? `${h}h ${m}m ${s}s` : `${m}m ${s}s`;
 }
 function onSubmitClicked() {
     if (submitted) return;
-    promptSubmit("📤 Submit your score?", "Once submitted, you won't be able to keep playing this puzzle.");
+    promptSubmit("📤 Submit your score?", "Once submitted you won't be able to keep playing this puzzle.");
 }
 function promptSubmit(title, leadText) {
-    if (submitted) { showLeaderboard(); return; }
+    if (submitted) { showLeaderboard(false); return; }
     const { correct, revealed, left, timeUsed } = getStats();
-    const body = `
-        ${leadText}<br><br>
-        <strong>Final Score:</strong> ${score} / ${MAX_POSSIBLE_SCORE}<br>
-        <strong>Words Solved (by you):</strong> ${correct}<br>
-        <strong>Words Revealed:</strong> ${revealed}<br>
-        <strong>Words Unanswered:</strong> ${left}<br>
-        <strong>Time Used:</strong> ${fmtDuration(timeUsed)}<br><br>
-        <label>Enter your name for the leaderboard:</label>
-        <input type="text" id="submit-name" maxlength="30" placeholder="Your name" value="${playerName.replace(/"/g,'&quot;')}">
-    `;
     showModal({
-        title, body,
-        confirmText: "Submit to Leaderboard", showCancel: true,
+        title, showCancel: true, confirmText: "Submit to Leaderboard",
+        body: `${leadText}<br><br>
+            <strong>Final Score:</strong> ${score} / ${MAX_POSSIBLE_SCORE}<br>
+            <strong>Words Solved (by you):</strong> ${correct}<br>
+            <strong>Words Revealed:</strong> ${revealed}<br>
+            <strong>Words Unanswered:</strong> ${left}<br>
+            <strong>Time Used:</strong> ${fmtDuration(timeUsed)}<br><br>
+            <label>Enter your name for the leaderboard:</label>
+            <input type="text" id="submit-name" maxlength="30" placeholder="Your name" value="${escapeHtml(playerName)}">`,
         onConfirm: () => {
             const name = (document.getElementById('submit-name')?.value || '').trim();
             if (!name) {
-                showModal({ title: "Name required", body: "Please enter a name to submit.", confirmText: "OK", showCancel: false, onConfirm: () => promptSubmit(title, leadText) });
+                showModal({ title: "Name required", body: "Please enter a name to submit.", confirmText: "OK", showCancel: false,
+                    onConfirm: () => promptSubmit(title, leadText) });
                 return;
             }
             playerName = name;
             doSubmit(name);
         }
     });
-    // Auto-focus the name input
-    setTimeout(() => {
-        const el = document.getElementById('submit-name');
-        if (el) el.focus();
-    }, 50);
+    setTimeout(() => { const el = document.getElementById('submit-name'); if (el) el.focus(); }, 50);
 }
 
 async function doSubmit(name) {
@@ -970,116 +929,146 @@ async function doSubmit(name) {
     submitted = true; gameOver = true;
     clearInterval(timerInterval);
     document.querySelectorAll('.cell input').forEach(i => i.disabled = true);
-    saveState();
-    updateStatusBar();
+    saveState(); updateStatusBar();
+
+    // Show "uploading" state immediately
+    showModal({ title: "📤 Submitting…", body: "Uploading your score…", confirmText: "Please wait…", showCancel: false, onConfirm: () => {} });
+    document.getElementById('modal-confirm').disabled = true;
 
     try {
         const { db, collection, addDoc, serverTimestamp } = window.FB;
         await addDoc(collection(db, "scores"), {
-            name,
-            score,
+            name, score,
             timeUsedSeconds: timeUsed,
-            wordsCorrect: correct,
+            wordsCorrect:  correct,
             wordsRevealed: revealed,
             submittedAt: serverTimestamp()
         });
-        showModal({
-            title: "✅ Submitted!",
-            body: `Your score of <strong>${score}</strong> is on the leaderboard.`,
-            confirmText: "View Leaderboard", showCancel: false,
-            onConfirm: () => { leaderboardCache = null; showLeaderboard(true); }
-        });
+
+        // Invalidate cache so leaderboard shows this new entry
+        lbCache = null;
+
+        // ── Automatically open the leaderboard (no extra click needed) ──
+        showLeaderboard(true);
+
     } catch (err) {
         console.error(err);
-        showModal({
-            title: "Submission failed",
-            body: `Couldn't reach the leaderboard. Error: <code>${(err && err.message) || err}</code>`,
-            confirmText: "OK", showCancel: false, onConfirm: () => {}
-        });
+        showModal({ title: "Submission failed",
+            body: `Couldn't reach the leaderboard.<br><code style="font-size:0.82rem;word-break:break-all;">${escapeHtml((err && err.message) || String(err))}</code>`,
+            confirmText: "OK", showCancel: false, onConfirm: () => {} });
     }
 }
 
-let leaderboardCache = null;
-let leaderboardFetchedAt = 0;
-const LEADERBOARD_CACHE_MS = 15 * 1000; // 15-second cache
-
+// ============ LEADERBOARD ============
+// Shows the leaderboard modal. If cached data is fresh enough, renders instantly.
+// Otherwise shows a spinner and fetches, then renders.
 async function showLeaderboard(forceRefresh = false) {
+    const now = Date.now();
+    const cacheOk = !forceRefresh && lbCache && (now - lbCache.fetchedAt) < LB_CACHE_MAX_MS;
+
+    if (cacheOk) {
+        // Data already in memory — render with zero network wait
+        renderLeaderboardModal(lbCache.rows, false);
+        return;
+    }
+
+    // Show the modal immediately with a spinner so the UI is responsive
     showModal({
         title: "🏆 Leaderboard",
-        body: `<div class="lb-empty">Loading…</div>`,
+        body: `<div class="lb-spinner">⏳</div>`,
         confirmText: "Close", showCancel: false, onConfirm: () => {}
     });
+
     if (!window.FB) {
-        document.getElementById('modal-body').innerHTML = `<div class="lb-empty">Firebase not loaded.</div>`;
+        document.getElementById('modal-body').innerHTML = `<div class="lb-empty">Firebase not loaded — check your config.</div>`;
         return;
     }
 
-    const now = Date.now();
-    const useCache = !forceRefresh && leaderboardCache && (now - leaderboardFetchedAt) < LEADERBOARD_CACHE_MS;
-
-    let rows;
-    if (useCache) {
-        rows = leaderboardCache;
-    } else {
-        try {
-            const { db, collection, getDocs, query, orderBy, limit } = window.FB;
-            const q = query(collection(db, "scores"), orderBy("score", "desc"), limit(100));
-            const snap = await getDocs(q);
-            rows = [];
-            snap.forEach(doc => {
-                const d = doc.data();
-                rows.push({
-                    id: doc.id,
-                    name: d.name || '?',
-                    score: d.score || 0,
-                    timeUsedSeconds: d.timeUsedSeconds || 0,
-                    wordsCorrect: d.wordsCorrect || 0,
-                    wordsRevealed: d.wordsRevealed || 0
-                });
-            });
-            rows.sort((a,b) => b.score - a.score || a.timeUsedSeconds - b.timeUsedSeconds);
-            leaderboardCache = rows;
-            leaderboardFetchedAt = now;
-        } catch (err) {
-            console.error(err);
-            document.getElementById('modal-body').innerHTML = `<div class="lb-empty">Failed to load leaderboard. Error: ${escapeHtml((err && err.message) || String(err))}</div>`;
-            return;
+    try {
+        const { db, collection, getDocs, query, orderBy, limit } = window.FB;
+        const q = query(collection(db, "scores"), orderBy("score", "desc"), limit(100));
+        const snap = await getDocs(q);
+        const rows = [];
+        snap.forEach(doc => {
+            const d = doc.data();
+            rows.push({ id: doc.id, name: d.name || '?', score: d.score || 0,
+                timeUsedSeconds: d.timeUsedSeconds || 0, wordsCorrect: d.wordsCorrect || 0, wordsRevealed: d.wordsRevealed || 0 });
+        });
+        rows.sort((a, b) => b.score - a.score || a.timeUsedSeconds - b.timeUsedSeconds);
+        lbCache = { rows, fetchedAt: Date.now() };
+        // Render into the already-open modal (modal is still open from the spinner above)
+        renderLeaderboardModal(rows, false, true /* already open */);
+    } catch (err) {
+        console.error(err);
+        if (document.getElementById('modal-backdrop').classList.contains('show')) {
+            document.getElementById('modal-body').innerHTML =
+                `<div class="lb-empty">Failed to load. ${escapeHtml((err && err.message) || String(err))}</div>`;
         }
     }
-
-    if (rows.length === 0) {
-        document.getElementById('modal-body').innerHTML = `<div class="lb-empty">No scores yet — be the first!</div>`;
-        return;
-    }
-
-    const cacheNote = useCache
-        ? `<div style="text-align:right;font-size:0.78rem;color:var(--text-muted);margin-bottom:6px;">Cached — <a href="#" id="lb-refresh" style="color:var(--accent);text-decoration:underline;">refresh</a></div>`
-        : '';
-    let html = cacheNote + `<table class="lb-table"><thead><tr><th class="lb-rank">#</th><th>Name</th><th>Score</th><th>Time</th><th>✓ / 💡</th></tr></thead><tbody>`;
-    rows.forEach((r, i) => {
-        const isMe = submitted && r.name === playerName;
-        html += `<tr class="${isMe ? 'me' : ''}">
-            <td class="lb-rank">${i+1}</td>
-            <td>${escapeHtml(r.name)}</td>
-            <td class="lb-score">${r.score}</td>
-            <td class="lb-time">${fmtDuration(r.timeUsedSeconds)}</td>
-            <td class="lb-time">${r.wordsCorrect} / ${r.wordsRevealed}</td>
-        </tr>`;
-    });
-    html += `</tbody></table>`;
-    document.getElementById('modal-body').innerHTML = html;
-
-    // Wire up the refresh link
-    const refreshBtn = document.getElementById('lb-refresh');
-    if (refreshBtn) refreshBtn.addEventListener('click', (e) => { e.preventDefault(); leaderboardCache = null; showLeaderboard(true); });
 }
 
-function escapeHtml(s) { return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+// Renders leaderboard content. If alreadyOpen=true, patches the existing open modal body
+// instead of calling showModal() again (avoids a flicker / re-open).
+function renderLeaderboardModal(rows, forceRefresh, alreadyOpen = false) {
+    const ageMs   = lbCache ? Date.now() - lbCache.fetchedAt : 0;
+    const ageSecs = Math.round(ageMs / 1000);
+    const ageStr  = ageSecs < 5 ? 'just now' : `${ageSecs}s ago`;
+
+    let html = `<div class="lb-meta">
+        <span>Updated ${ageStr}</span>
+        <a id="lb-refresh-btn">↻ Refresh</a>
+    </div>`;
+
+    if (!rows || rows.length === 0) {
+        html += `<div class="lb-empty">No scores yet — be the first!</div>`;
+    } else {
+        html += `<table class="lb-table"><thead><tr>
+            <th class="lb-rank">#</th><th>Name</th><th>Score</th><th>Time Used</th><th>✓ / 💡</th>
+        </tr></thead><tbody>`;
+        rows.forEach((r, i) => {
+            const isMe = submitted && r.name === playerName;
+            html += `<tr class="${isMe ? 'me' : ''}">
+                <td class="lb-rank">${i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : i + 1}</td>
+                <td>${escapeHtml(r.name)}${isMe ? ' <span style="color:var(--accent);font-size:0.8rem;">(you)</span>' : ''}</td>
+                <td class="lb-score">${r.score}</td>
+                <td class="lb-time">${fmtDuration(r.timeUsedSeconds)}</td>
+                <td class="lb-time">${r.wordsCorrect} / ${r.wordsRevealed}</td>
+            </tr>`;
+        });
+        html += `</tbody></table>`;
+    }
+
+    if (alreadyOpen) {
+        // Patch open modal in-place — no flicker
+        document.getElementById('modal-title').textContent = '🏆 Leaderboard';
+        document.getElementById('modal-body').innerHTML = html;
+        document.getElementById('modal-cancel').style.display = 'none';
+        const confirmBtn = document.getElementById('modal-confirm');
+        confirmBtn.textContent = 'Close';
+        confirmBtn.disabled = false;
+        // Re-bind confirm since alreadyOpen path skips showModal()
+        if (modalConfirmHandler) confirmBtn.removeEventListener('click', modalConfirmHandler);
+        modalConfirmHandler = () => hideModal();
+        confirmBtn.addEventListener('click', modalConfirmHandler);
+    } else {
+        showModal({ title: "🏆 Leaderboard", body: html, confirmText: "Close", showCancel: false, onConfirm: () => {} });
+    }
+
+    // Wire the refresh link regardless of path
+    setTimeout(() => {
+        const btn = document.getElementById('lb-refresh-btn');
+        if (btn) btn.addEventListener('click', () => { lbCache = null; showLeaderboard(true); });
+    }, 0);
+}
+
+function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, m => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m]));
+}
 
 // ============ MODAL ============
 function setupModal() {
     document.getElementById('modal-cancel').addEventListener('click', hideModal);
-    document.getElementById('modal-backdrop').addEventListener('click', (e) => {
+    document.getElementById('modal-backdrop').addEventListener('click', e => {
         if (e.target.id === 'modal-backdrop') hideModal();
     });
 }
@@ -1089,6 +1078,7 @@ function showModal({ title, body, confirmText, showCancel, onConfirm }) {
     document.getElementById('modal-body').innerHTML = body;
     const confirmBtn = document.getElementById('modal-confirm');
     confirmBtn.textContent = confirmText || 'Confirm';
+    confirmBtn.disabled = false;
     document.getElementById('modal-cancel').style.display = showCancel ? '' : 'none';
     if (modalConfirmHandler) confirmBtn.removeEventListener('click', modalConfirmHandler);
     modalConfirmHandler = () => { hideModal(); if (typeof onConfirm === 'function') onConfirm(); };
