@@ -3,7 +3,18 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Cryptic Astro Crossword</title>
+<title>Cryptic Astro Crossword — A Puzzle Written in the Stars</title>
+<meta name="description" content="A cryptic crossword puzzle with an astronomy theme. Decode clever clues about planets, comets, constellations and astronomers, and climb the leaderboard. ✦">
+<meta name="theme-color" content="#1e1b4b">
+
+<!-- Inline SVG favicon — no external file needed -->
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3CradialGradient id='g' cx='50%25' cy='40%25'%3E%3Cstop offset='0%25' stop-color='%23a78bfa'/%3E%3Cstop offset='100%25' stop-color='%231e1b4b'/%3E%3C/radialGradient%3E%3C/defs%3E%3Ccircle cx='50' cy='50' r='48' fill='url(%23g)'/%3E%3Ctext x='50' y='68' font-size='60' text-anchor='middle' fill='%23fff' font-family='serif' font-weight='700'%3E%E2%9C%A6%3C/text%3E%3C/svg%3E">
+
+<!-- Open Graph (for shared link previews) -->
+<meta property="og:title" content="Cryptic Astro Crossword">
+<meta property="og:description" content="A cryptic crossword puzzle written in the stars. ✦">
+<meta property="og:type" content="website">
+
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800&family=Inter:wght@400;500;600;700;800&family=Spectral:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
@@ -54,7 +65,6 @@ body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--tex
 @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
 .intro-screen.fade-out { animation: fadeOut 0.4s ease-out forwards; }
 
-/* Starfield background — pure CSS, lightweight */
 .intro-screen::before {
     content: ''; position: absolute; inset: 0; pointer-events: none;
     background-image:
@@ -76,239 +86,107 @@ body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--tex
 
 .intro-content { position: relative; z-index: 2; max-width: 1200px; width: 100%; }
 
-/* ─── Welcome screen ─── */
-.welcome-card {
-    text-align: center;
-    padding: 50px 40px;
-    max-width: 640px;
-    margin: 0 auto;
-}
+.welcome-card { text-align: center; padding: 50px 40px; max-width: 640px; margin: 0 auto; }
 .welcome-title {
     font-family: 'Cinzel', serif;
     font-size: clamp(2.4rem, 6vw, 4rem);
-    font-weight: 700;
-    letter-spacing: 2px;
+    font-weight: 700; letter-spacing: 2px;
     background: linear-gradient(135deg, #a78bfa 0%, #f0abfc 50%, #60a5fa 100%);
-    -webkit-background-clip: text; background-clip: text;
-    -webkit-text-fill-color: transparent;
-    margin-bottom: 12px;
-    line-height: 1.15;
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+    margin-bottom: 12px; line-height: 1.15;
     text-shadow: 0 0 40px rgba(167,139,250,0.25);
 }
 .welcome-subtitle {
-    font-family: 'Spectral', serif;
-    font-style: italic;
+    font-family: 'Spectral', serif; font-style: italic;
     font-size: clamp(1.05rem, 2vw, 1.3rem);
-    color: #c4b5fd;
-    margin-bottom: 40px;
-    letter-spacing: 1px;
+    color: #c4b5fd; margin-bottom: 40px; letter-spacing: 1px;
 }
 .welcome-name-box {
     background: rgba(255,255,255,0.04);
     border: 1px solid rgba(167,139,250,0.3);
-    border-radius: 16px;
-    padding: 28px;
-    margin-bottom: 24px;
+    border-radius: 16px; padding: 28px; margin-bottom: 24px;
     backdrop-filter: blur(8px);
 }
 .welcome-label {
-    display: block;
-    font-size: 0.85rem;
-    text-transform: uppercase;
-    letter-spacing: 2.5px;
-    color: #c4b5fd;
-    margin-bottom: 14px;
-    font-weight: 600;
+    display: block; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 2.5px;
+    color: #c4b5fd; margin-bottom: 14px; font-weight: 600;
 }
 .welcome-input {
-    width: 100%;
-    padding: 14px 18px;
-    font-size: 1.2rem;
-    font-family: 'Inter', sans-serif;
-    font-weight: 500;
-    background: rgba(0,0,0,0.3);
-    color: #fff;
-    border: 2px solid rgba(167,139,250,0.4);
-    border-radius: 10px;
-    text-align: center;
-    transition: all 0.2s;
+    width: 100%; padding: 14px 18px; font-size: 1.2rem;
+    font-family: 'Inter', sans-serif; font-weight: 500;
+    background: rgba(0,0,0,0.3); color: #fff;
+    border: 2px solid rgba(167,139,250,0.4); border-radius: 10px;
+    text-align: center; transition: all 0.2s;
 }
 .welcome-input::placeholder { color: rgba(196,181,253,0.5); }
-.welcome-input:focus {
-    outline: none;
-    border-color: #a78bfa;
-    background: rgba(0,0,0,0.45);
-    box-shadow: 0 0 0 4px rgba(167,139,250,0.15);
-}
+.welcome-input:focus { outline: none; border-color: #a78bfa; background: rgba(0,0,0,0.45); box-shadow: 0 0 0 4px rgba(167,139,250,0.15); }
 .intro-btn {
-    display: inline-block;
-    padding: 14px 44px;
-    font-size: 1.1rem;
-    font-weight: 700;
-    font-family: 'Inter', sans-serif;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    color: #fff;
+    display: inline-block; padding: 14px 44px;
+    font-size: 1.1rem; font-weight: 700; font-family: 'Inter', sans-serif;
+    letter-spacing: 1.5px; text-transform: uppercase; color: #fff;
     background: linear-gradient(135deg, #7c3aed 0%, #6366f1 100%);
-    border: none;
-    border-radius: 12px;
-    cursor: pointer;
-    transition: all 0.2s;
+    border: none; border-radius: 12px; cursor: pointer; transition: all 0.2s;
     box-shadow: 0 10px 30px rgba(124,58,237,0.4);
 }
-.intro-btn:hover:not(:disabled) {
-    transform: translateY(-2px);
-    box-shadow: 0 14px 36px rgba(124,58,237,0.55);
-    filter: brightness(1.1);
-}
+.intro-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 14px 36px rgba(124,58,237,0.55); filter: brightness(1.1); }
 .intro-btn:disabled { opacity: 0.45; cursor: not-allowed; }
-.intro-btn.secondary {
-    background: rgba(255,255,255,0.08);
-    border: 1px solid rgba(167,139,250,0.4);
-    box-shadow: none;
-}
-.intro-btn.secondary:hover:not(:disabled) {
-    background: rgba(167,139,250,0.15);
-    box-shadow: 0 6px 20px rgba(167,139,250,0.2);
-}
-.welcome-hint {
-    margin-top: 18px;
-    font-size: 0.85rem;
-    color: rgba(196,181,253,0.7);
-    font-style: italic;
-}
+.intro-btn.secondary { background: rgba(255,255,255,0.08); border: 1px solid rgba(167,139,250,0.4); box-shadow: none; }
+.intro-btn.secondary:hover:not(:disabled) { background: rgba(167,139,250,0.15); box-shadow: 0 6px 20px rgba(167,139,250,0.2); }
+.welcome-hint { margin-top: 18px; font-size: 0.85rem; color: rgba(196,181,253,0.7); font-style: italic; }
 
-/* ─── Instructions screen (two columns) ─── */
-.instr-header {
-    text-align: center;
-    margin-bottom: 30px;
-}
+.instr-header { text-align: center; margin-bottom: 30px; }
 .instr-header h1 {
-    font-family: 'Cinzel', serif;
-    font-size: clamp(1.8rem, 4vw, 2.6rem);
-    font-weight: 700;
-    letter-spacing: 3px;
+    font-family: 'Cinzel', serif; font-size: clamp(1.8rem, 4vw, 2.6rem);
+    font-weight: 700; letter-spacing: 3px;
     background: linear-gradient(135deg, #a78bfa 0%, #f0abfc 50%, #60a5fa 100%);
-    -webkit-background-clip: text; background-clip: text;
-    -webkit-text-fill-color: transparent;
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
     margin-bottom: 8px;
 }
-.instr-header p {
-    font-family: 'Spectral', serif;
-    font-style: italic;
-    font-size: 1.05rem;
-    color: #c4b5fd;
-}
-.instr-cols {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 28px;
-    margin-bottom: 30px;
-}
+.instr-header p { font-family: 'Spectral', serif; font-style: italic; font-size: 1.05rem; color: #c4b5fd; }
+.instr-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; margin-bottom: 30px; }
 .instr-card {
-    background: rgba(0,0,0,0.35);
-    border: 1px solid rgba(167,139,250,0.25);
-    border-radius: 18px;
-    padding: 32px 30px;
-    backdrop-filter: blur(8px);
-    min-height: 100%;
+    background: rgba(0,0,0,0.35); border: 1px solid rgba(167,139,250,0.25);
+    border-radius: 18px; padding: 32px 30px; backdrop-filter: blur(8px); min-height: 100%;
 }
 .instr-card h2 {
-    font-family: 'Cinzel', serif;
-    font-size: 1.7rem;
-    font-weight: 700;
-    letter-spacing: 2px;
-    text-align: center;
-    margin-bottom: 22px;
+    font-family: 'Cinzel', serif; font-size: 1.7rem; font-weight: 700; letter-spacing: 2px;
+    text-align: center; margin-bottom: 22px;
     background: linear-gradient(135deg, #c4b5fd, #f0abfc);
-    -webkit-background-clip: text; background-clip: text;
-    -webkit-text-fill-color: transparent;
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
 }
-.instr-card p,
-.instr-card li {
-    font-family: 'Spectral', serif;
-    font-size: 1.1rem;
-    line-height: 1.65;
-    color: #e8e6ff;
-    margin-bottom: 14px;
-}
-.instr-card .lede {
-    font-style: italic;
-    color: #f0abfc;
-    text-align: center;
-    margin-bottom: 18px;
-    font-size: 1.15rem;
-}
+.instr-card p, .instr-card li { font-family: 'Spectral', serif; font-size: 1.1rem; line-height: 1.65; color: #e8e6ff; margin-bottom: 14px; }
+.instr-card .lede { font-style: italic; color: #f0abfc; text-align: center; margin-bottom: 18px; font-size: 1.15rem; }
 .instr-card ol { padding-left: 22px; }
 .instr-card ol li { margin-bottom: 18px; padding-left: 6px; }
 .instr-card ol li::marker { color: #a78bfa; font-weight: 700; }
 
-/* Colour helpers used inside the instructions text */
 .demo-def      { color: #34d399; text-decoration: underline; text-decoration-thickness: 1.5px; text-underline-offset: 3px; font-weight: 600; }
 .demo-fodder   { color: #f87171; font-weight: 600; }
 .demo-indicator{ color: #60a5fa; font-style: italic; font-weight: 600; }
 
-.legend-box {
-    margin-top: 14px;
-    padding: 18px 20px;
-    background: rgba(0,0,0,0.35);
-    border-radius: 12px;
-    border: 1px dashed rgba(167,139,250,0.3);
-    text-align: center;
-}
-.legend-box .legend-row {
-    font-family: 'Spectral', serif;
-    font-size: 1.05rem;
-    margin: 8px 0;
-}
+.legend-box { margin-top: 14px; padding: 18px 20px; background: rgba(0,0,0,0.35); border-radius: 12px; border: 1px dashed rgba(167,139,250,0.3); text-align: center; }
+.legend-box .legend-row { font-family: 'Spectral', serif; font-size: 1.05rem; margin: 8px 0; }
 .legend-box .lbl {
-    display: inline-block;
-    min-width: 130px;
-    text-align: right;
-    color: #c4b5fd;
-    font-weight: 600;
-    margin-right: 10px;
-    letter-spacing: 1px;
-    font-family: 'Inter', sans-serif;
-    font-size: 0.85rem;
-    text-transform: uppercase;
+    display: inline-block; min-width: 130px; text-align: right; color: #c4b5fd;
+    font-weight: 600; margin-right: 10px; letter-spacing: 1px;
+    font-family: 'Inter', sans-serif; font-size: 0.85rem; text-transform: uppercase;
 }
 
-.instr-actions { text-align: center; }
+.instr-actions { text-align: center; display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
 
-/* ─── Tip dialog (the small one before game starts) ─── */
 .tip-dialog {
-    background: rgba(15,15,30,0.92);
-    border: 1px solid rgba(167,139,250,0.35);
-    border-radius: 16px;
-    padding: 32px 36px;
-    max-width: 540px;
-    margin: 0 auto;
-    text-align: center;
-    backdrop-filter: blur(10px);
-    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    background: rgba(15,15,30,0.92); border: 1px solid rgba(167,139,250,0.35);
+    border-radius: 16px; padding: 32px 36px; max-width: 540px; margin: 0 auto;
+    text-align: center; backdrop-filter: blur(10px); box-shadow: 0 20px 60px rgba(0,0,0,0.5);
 }
 .tip-dialog h2 {
-    font-family: 'Cinzel', serif;
-    font-size: 1.6rem;
+    font-family: 'Cinzel', serif; font-size: 1.6rem;
     background: linear-gradient(135deg, #a78bfa, #f0abfc);
-    -webkit-background-clip: text; background-clip: text;
-    -webkit-text-fill-color: transparent;
-    margin-bottom: 18px;
-    letter-spacing: 2px;
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+    margin-bottom: 18px; letter-spacing: 2px;
 }
-.tip-dialog p {
-    font-family: 'Spectral', serif;
-    font-size: 1.1rem;
-    color: #e8e6ff;
-    line-height: 1.6;
-    margin-bottom: 14px;
-}
-.tip-dialog .strong-note {
-    color: #fbbf24;
-    font-weight: 600;
-    font-style: italic;
-}
+.tip-dialog p { font-family: 'Spectral', serif; font-size: 1.1rem; color: #e8e6ff; line-height: 1.6; margin-bottom: 14px; }
+.tip-dialog .strong-note { color: #fbbf24; font-weight: 600; font-style: italic; }
 .tip-dialog .ok-row { margin-top: 26px; }
 
 @media (max-width: 820px) {
@@ -318,16 +196,25 @@ body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--tex
 }
 
 /* ─────────────────────────────────────────────
-   MAIN GAME UI (unchanged structure)
+   MAIN GAME UI
    ───────────────────────────────────────────── */
 #toggle-banner { background: var(--bg-banner); border-bottom: 1px solid var(--border); padding: 8px 16px; position: sticky; top: 0; z-index: 100; box-shadow: var(--shadow); }
 .banner-content { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 18px; flex-wrap: wrap; min-height: 38px; }
-.banner-left { display: flex; align-items: center; gap: 10px; flex-shrink: 1; min-width: 0; }
+.banner-left { display: flex; align-items: center; gap: 14px; flex-shrink: 1; min-width: 0; }
 .banner-title { font-size: 0.95rem; font-weight: 800; background: linear-gradient(90deg, #6d28d9, #2563eb, #059669); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; white-space: nowrap; }
 body.dark .banner-title { background: linear-gradient(90deg, #a78bfa, #60a5fa, #34d399); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
 .banner-subtitle { font-size: 0.78rem; color: var(--text-soft); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .banner-subtitle strong { color: #dc2626; }
 body.dark .banner-subtitle strong { color: #f87171; }
+
+/* New: Instructions re-open link inside the banner */
+#btn-instructions {
+    font-size: 0.78rem; font-weight: 600; color: var(--accent);
+    background: none; border: 1px solid var(--accent); padding: 4px 10px;
+    border-radius: 6px; cursor: pointer; transition: all 0.15s;
+    font-family: 'Inter', sans-serif; white-space: nowrap;
+}
+#btn-instructions:hover { background: var(--accent); color: #fff; }
 
 .toggle-group { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; }
 .toggle-divider { width: 1px; height: 22px; background: var(--border); }
@@ -388,6 +275,14 @@ body.dark .toggle-switch input:checked + .slider { background: #6366f1; }
 
 #correct-flash { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.7); background: var(--green); color: #fff; font-size: 2.4rem; font-weight: 800; padding: 20px 50px; border-radius: 16px; letter-spacing: 4px; box-shadow: 0 20px 60px rgba(16,185,129,0.4); opacity: 0; pointer-events: none; z-index: 200; transition: all 0.25s ease-out; font-family: 'Inter', sans-serif; }
 #correct-flash.show { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+
+/* Confetti canvas — fixed, full-screen, non-interactive */
+#confetti-canvas {
+    position: fixed; inset: 0; pointer-events: none;
+    z-index: 250;
+    display: none;
+}
+#confetti-canvas.active { display: block; }
 
 #current-clue-display { margin-top: 12px; padding: 12px 16px; background: var(--bg-elev); border: 1px solid var(--border); border-radius: 8px; font-family: 'Spectral', serif; font-size: 1.05rem; width: calc(44px * 11 + 6px); line-height: 1.45; color: var(--text-soft); box-shadow: var(--shadow); }
 
@@ -464,18 +359,13 @@ body.show-indicator .seg-indicator { color: var(--seg-indicator); font-style: it
         </div>
 
         <div class="instr-cols">
-            <!-- LEFT: What is a cryptic? -->
             <div class="instr-card">
                 <h2>Cryptic Crosswords</h2>
                 <p class="lede">Wait — this isn't my normal crossword!</p>
-
                 <p>A Cryptic Crossword is much like a normal one, except that each clue is given <strong>two ways</strong>:</p>
-
                 <p>• Once as the <strong>Definition</strong> — a synonym or hint for the answer.<br>
                 • Once as the <strong>Wordplay</strong> — basically word-math (anagrams, hidden letters, reversals…).</p>
-
                 <p><strong>Don't worry!</strong> For your convenience, we've colour-marked every clue:</p>
-
                 <div class="legend-box">
                     <div class="legend-row"><span class="lbl">Definitions</span> <span class="demo-def">like this — green &amp; underlined</span></div>
                     <div class="legend-row"><span class="lbl">Indicators</span> <span class="demo-indicator">like this — blue &amp; italic</span></div>
@@ -483,7 +373,6 @@ body.show-indicator .seg-indicator { color: var(--seg-indicator); font-style: it
                 </div>
             </div>
 
-            <!-- RIGHT: Examples -->
             <div class="instr-card">
                 <h2>Solving Examples</h2>
                 <ol>
@@ -504,6 +393,7 @@ body.show-indicator .seg-indicator { color: var(--seg-indicator); font-style: it
 
         <div class="instr-actions">
             <button class="intro-btn" id="instr-continue-btn">Continue →</button>
+            <button class="intro-btn secondary" id="instr-back-to-game-btn" style="display:none;">← Back to Puzzle</button>
         </div>
     </div>
 </div>
@@ -526,13 +416,14 @@ body.show-indicator .seg-indicator { color: var(--seg-indicator); font-style: it
     </div>
 </div>
 
-<!-- ─── MAIN GAME (hidden until intro is done) ─── -->
+<!-- ─── MAIN GAME ─── -->
 <div id="game-root" style="display:none;">
     <div id="toggle-banner">
         <div class="banner-content">
             <div class="banner-left">
                 <span class="banner-title">🔍 Annotation Toggles</span>
                 <span class="banner-subtitle">— Visual learning helpers, <strong>won't affect score</strong></span>
+                <button id="btn-instructions" title="Re-read the instructions">📖 Instructions</button>
             </div>
             <div class="toggle-group">
                 <label class="toggle-switch"><input type="checkbox" id="toggle-def"><span class="slider"></span><span class="toggle-label"><span class="swatch swatch-def"></span>Definitions</span></label>
@@ -574,6 +465,7 @@ body.show-indicator .seg-indicator { color: var(--seg-indicator); font-style: it
 </div>
 
 <div id="correct-flash">CORRECT!</div>
+<canvas id="confetti-canvas"></canvas>
 
 <div id="modal-backdrop">
     <div class="modal-box">
@@ -593,12 +485,12 @@ import { getFirestore, collection, addDoc, getDocs, query, orderBy, limit, serve
     from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
 
 const firebaseConfig = {
-    apiKey: "PASTE_YOUR_API_KEY_HERE",
-    authDomain: "PASTE_YOUR_AUTH_DOMAIN_HERE",
-    projectId: "PASTE_YOUR_PROJECT_ID_HERE",
-    storageBucket: "PASTE_YOUR_STORAGE_BUCKET_HERE",
-    messagingSenderId: "PASTE_YOUR_MESSAGING_SENDER_ID_HERE",
-    appId: "PASTE_YOUR_APP_ID_HERE"
+    apiKey: "AIzaSyD4u3gYXKgRCz7GJvlJVmTyq8zeND9-91E",
+    authDomain: "crypticastrocrossword.firebaseapp.com",
+    projectId: "crypticastrocrossword",
+    storageBucket: "crypticastrocrossword.firebasestorage.app",
+    messagingSenderId: "523652682861",
+    appId: "1:523652682861:web:e58501da13cab79bf3db64"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -769,7 +661,7 @@ let timerInterval = null;
 let gameOver = false;
 let submitted = false;
 let playerName = '';
-let gameStarted = false;   // becomes true when intro flow is finished
+let gameStarted = false;
 
 // ============ LEADERBOARD CACHE ============
 let lbCache = null;
@@ -846,14 +738,13 @@ document.addEventListener('DOMContentLoaded', () => {
     setupActionButtons();
     setupModal();
     setupIntroFlow();
+    setupConfetti();
 
     loadState();
 
     if (gameStarted) {
-        // Returning player — skip intro
         showGame();
     } else {
-        // First visit — show welcome
         const nameInput = document.getElementById('welcome-name-input');
         if (playerName) nameInput.value = playerName;
         validateWelcomeName();
@@ -881,6 +772,18 @@ function setupIntroFlow() {
         transitionScreen('screen-instructions', 'screen-tip');
     });
 
+    document.getElementById('instr-back-to-game-btn').addEventListener('click', () => {
+        const instr = document.getElementById('screen-instructions');
+        instr.classList.add('fade-out');
+        setTimeout(() => {
+            instr.style.display = 'none';
+            instr.classList.remove('fade-out');
+            // Restore the original button visibility for next first-time view
+            document.getElementById('instr-continue-btn').style.display = '';
+            document.getElementById('instr-back-to-game-btn').style.display = 'none';
+        }, 400);
+    });
+
     document.getElementById('tip-start-btn').addEventListener('click', () => {
         const tip = document.getElementById('screen-tip');
         tip.classList.add('fade-out');
@@ -903,19 +806,16 @@ function transitionScreen(fromId, toId) {
         from.style.display = 'none';
         from.classList.remove('fade-out');
         to.style.display = 'flex';
-        // Scroll the new screen content to the top
         to.scrollTop = 0;
     }, 400);
 }
 function showGame() {
-    // Hide any intro screens still around
     ['screen-welcome', 'screen-instructions', 'screen-tip'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.style.display = 'none';
     });
     document.getElementById('game-root').style.display = 'block';
 
-    // Now wire up the game state
     gameStarted = true;
     if (playerName) document.getElementById('player-name-display').textContent = playerName;
     selectClue("1A");
@@ -929,6 +829,16 @@ function showGame() {
     }
     updateStatusBar();
     saveState();
+}
+
+// Re-open the instructions page from inside the game
+function reopenInstructions() {
+    const instr = document.getElementById('screen-instructions');
+    // Swap the buttons: hide "Continue", show "Back to Puzzle"
+    document.getElementById('instr-continue-btn').style.display = 'none';
+    document.getElementById('instr-back-to-game-btn').style.display = '';
+    instr.style.display = 'flex';
+    instr.scrollTop = 0;
 }
 
 // ============ GRID ============
@@ -1039,6 +949,9 @@ function handleInput(e, row, col) {
 function handleKeyDown(e) {
     if (currentRow === null || currentCol === null || gameOver) return;
     if (document.getElementById('modal-backdrop').classList.contains('show')) return;
+    // Don't intercept keys while an intro screen is visible
+    const instr = document.getElementById('screen-instructions');
+    if (instr && instr.style.display !== 'none') return;
     switch (e.key) {
         case 'Tab':       e.preventDefault(); moveToNextClue(e.shiftKey); break;
         case 'ArrowRight':e.preventDefault(); moveInDirection(0,  1); break;
@@ -1161,6 +1074,7 @@ function setupToggles() {
     document.getElementById('toggle-fodder').addEventListener('change', e => document.body.classList.toggle('show-fodder', e.target.checked));
     document.getElementById('toggle-indicator').addEventListener('change', e => document.body.classList.toggle('show-indicator', e.target.checked));
     document.getElementById('toggle-theme').addEventListener('change', e => document.body.classList.toggle('dark', e.target.checked));
+    document.getElementById('btn-instructions').addEventListener('click', reopenInstructions);
 }
 
 // ============ TIMER ============
@@ -1248,7 +1162,82 @@ function checkAllSolved() {
     const allDone = Object.keys(CLUE_ANNOTATIONS).every(id => wordState[id].awarded || wordState[id].revealed);
     if (allDone && !gameOver) {
         gameOver = true; clearInterval(timerInterval); saveState();
-        setTimeout(() => promptSubmit("🎉 Puzzle complete!", "You filled in every word. Submit your score to the leaderboard?"), 1100);
+        launchConfetti();
+        setTimeout(() => promptSubmit("🎉 Puzzle complete!", "You filled in every word. Submit your score to the leaderboard?"), 1500);
+    }
+}
+
+// ============ CONFETTI 🎊 ============
+let confettiCanvas, confettiCtx, confettiAnimId = null, confettiParticles = [], confettiStartTime = 0;
+const CONFETTI_COLOURS = ['#a78bfa', '#f0abfc', '#60a5fa', '#34d399', '#fbbf24', '#f87171', '#c4b5fd', '#fff'];
+
+function setupConfetti() {
+    confettiCanvas = document.getElementById('confetti-canvas');
+    confettiCtx    = confettiCanvas.getContext('2d');
+    const resize = () => {
+        confettiCanvas.width  = window.innerWidth;
+        confettiCanvas.height = window.innerHeight;
+    };
+    resize();
+    window.addEventListener('resize', resize);
+}
+function launchConfetti() {
+    confettiCanvas.width  = window.innerWidth;
+    confettiCanvas.height = window.innerHeight;
+    confettiCanvas.classList.add('active');
+    confettiParticles = [];
+    const N = 180;
+    for (let i = 0; i < N; i++) {
+        confettiParticles.push({
+            x:   Math.random() * confettiCanvas.width,
+            y:   -20 - Math.random() * 200,
+            vx:  (Math.random() - 0.5) * 4,
+            vy:  2 + Math.random() * 4,
+            size: 6 + Math.random() * 7,
+            rot:  Math.random() * Math.PI * 2,
+            vrot: (Math.random() - 0.5) * 0.25,
+            color: CONFETTI_COLOURS[Math.floor(Math.random() * CONFETTI_COLOURS.length)],
+            shape: Math.random() < 0.5 ? 'rect' : 'circle',
+        });
+    }
+    confettiStartTime = performance.now();
+    if (confettiAnimId) cancelAnimationFrame(confettiAnimId);
+    animateConfetti();
+}
+function animateConfetti() {
+    const elapsed = performance.now() - confettiStartTime;
+    const DURATION = 4500; // ms total
+    const FADE_START = 3200;
+    confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+    const fadeAlpha = elapsed < FADE_START ? 1 : Math.max(0, 1 - (elapsed - FADE_START) / (DURATION - FADE_START));
+    confettiCtx.globalAlpha = fadeAlpha;
+
+    confettiParticles.forEach(p => {
+        p.x   += p.vx;
+        p.y   += p.vy;
+        p.vy  += 0.08;        // gravity
+        p.rot += p.vrot;
+        confettiCtx.save();
+        confettiCtx.translate(p.x, p.y);
+        confettiCtx.rotate(p.rot);
+        confettiCtx.fillStyle = p.color;
+        if (p.shape === 'rect') {
+            confettiCtx.fillRect(-p.size / 2, -p.size / 3, p.size, p.size * 0.6);
+        } else {
+            confettiCtx.beginPath();
+            confettiCtx.arc(0, 0, p.size / 2, 0, Math.PI * 2);
+            confettiCtx.fill();
+        }
+        confettiCtx.restore();
+    });
+    confettiCtx.globalAlpha = 1;
+
+    if (elapsed < DURATION) {
+        confettiAnimId = requestAnimationFrame(animateConfetti);
+    } else {
+        confettiCanvas.classList.remove('active');
+        confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+        confettiAnimId = null;
     }
 }
 
